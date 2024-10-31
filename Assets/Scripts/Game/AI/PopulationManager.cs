@@ -1,17 +1,18 @@
 ﻿using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
+using Random = UnityEngine.Random;
 
 public class PopulationManager : MonoBehaviour
 {
     public GameObject TankPrefab;
     public GameObject MinePrefab;
 
+
+    public Vector3 SceneHalfExtents = new Vector3(20.0f, 0.0f, 20.0f);
+
     public int PopulationCount = 40;
     public int MinesCount = 50;
-
-    public Vector3 SceneHalfExtents = new Vector3 (20.0f, 0.0f, 20.0f);
-
     public float GenerationDuration = 20.0f;
     public int IterationCount = 1;
 
@@ -27,7 +28,7 @@ public class PopulationManager : MonoBehaviour
     public float P = 0.5f;
 
 
-    GeneticAlgorithm genAlg;
+    public GeneticAlgorithm genAlg;
 
     List<Tank> populationGOs = new List<Tank>();
     List<Genome> population = new List<Genome>();
@@ -35,33 +36,22 @@ public class PopulationManager : MonoBehaviour
     List<IMinable> mines = new List<IMinable>();
     List<IMinable> goodMines = new List<IMinable>();
     List<IMinable> badMines = new List<IMinable>();
-     
+
     float accumTime = 0;
     bool isRunning = false;
 
-    public int generation {
-        get; private set;
-    }
+    public int generation { get; private set; }
 
-    public float bestFitness 
-    {
-        get; private set;
-    }
+    public float bestFitness { get; private set; }
 
-    public float avgFitness 
-    {
-        get; private set;
-    }
+    public float avgFitness { get; private set; }
 
-    public float worstFitness 
-    {
-        get; private set;
-    }
+    public float worstFitness { get; private set; }
 
     private float getBestFitness()
     {
         float fitness = 0;
-        foreach(Genome g in population)
+        foreach (Genome g in population)
         {
             if (fitness < g.fitness)
                 fitness = g.fitness;
@@ -73,7 +63,7 @@ public class PopulationManager : MonoBehaviour
     private float getAvgFitness()
     {
         float fitness = 0;
-        foreach(Genome g in population)
+        foreach (Genome g in population)
         {
             fitness += g.fitness;
         }
@@ -84,7 +74,7 @@ public class PopulationManager : MonoBehaviour
     private float getWorstFitness()
     {
         float fitness = float.MaxValue;
-        foreach(Genome g in population)
+        foreach (Genome g in population)
         {
             if (fitness > g.fitness)
                 fitness = g.fitness;
@@ -151,11 +141,11 @@ public class PopulationManager : MonoBehaviour
 
         // Destroy previous tanks (if there are any)
         DestroyTanks();
-        
+
         for (int i = 0; i < PopulationCount; i++)
         {
             NeuralNetwork brain = CreateBrain();
-            
+
             Genome genome = new Genome(brain.GetTotalWeightsCount());
 
             brain.SetWeights(genome.genome);
@@ -199,6 +189,9 @@ public class PopulationManager : MonoBehaviour
         avgFitness = getAvgFitness();
         worstFitness = getWorstFitness();
 
+        //Todo: Make a way to get this the genAlg
+        string genonmes = JsonUtility.ToJson(genAlg,true);
+        System.IO.File.WriteAllText(Application.dataPath+ "/Saves/Genomes.json", genonmes);
         // Evolve each genome and create a new array of genomes
         Genome[] newGenomes = genAlg.Epoch(population.ToArray());
 
@@ -222,11 +215,11 @@ public class PopulationManager : MonoBehaviour
     }
 
     // Update is called once per frame
-    void FixedUpdate () 
-	{
+    void FixedUpdate()
+    {
         if (!isRunning)
             return;
-        
+
         float dt = Time.fixedDeltaTime;
 
         for (int i = 0; i < Mathf.Clamp((float)(IterationCount / 100.0f) * 50, 1, 50); i++)
@@ -277,9 +270,10 @@ public class PopulationManager : MonoBehaviour
                 break;
             }
         }
-	}
+    }
 
-#region Helpers
+    #region Helpers
+
     Tank CreateTank(Genome genome, NeuralNetwork brain)
     {
         Vector3 position = GetRandomPos();
@@ -341,7 +335,6 @@ public class PopulationManager : MonoBehaviour
             go.SetMine(false);
             badMines.Add(go);
         }
-
     }
 
     public void RelocateMine(IMinable mine)
@@ -358,10 +351,11 @@ public class PopulationManager : MonoBehaviour
         mine.SetPosition(GetRandomPos());
     }
 
-    
+
     Vector3 GetRandomPos()
     {
-        return new Vector3(Random.value * SceneHalfExtents.x * 2.0f - SceneHalfExtents.x, 0.0f, Random.value * SceneHalfExtents.z * 2.0f - SceneHalfExtents.z); 
+        return new Vector3(Random.value * SceneHalfExtents.x * 2.0f - SceneHalfExtents.x, 0.0f,
+            Random.value * SceneHalfExtents.z * 2.0f - SceneHalfExtents.z);
     }
 
     Quaternion GetRandomRot()
@@ -385,7 +379,7 @@ public class PopulationManager : MonoBehaviour
         }
 
         return nearest;
-    }   
+    }
 
     IMinable GetNearestGoodMine(Vector3 pos)
     {
@@ -403,7 +397,7 @@ public class PopulationManager : MonoBehaviour
         }
 
         return nearest;
-    }   
+    }
 
     IMinable GetNearestBadMine(Vector3 pos)
     {
@@ -421,8 +415,7 @@ public class PopulationManager : MonoBehaviour
         }
 
         return nearest;
-    }   
+    }
 
-#endregion
-
+    #endregion
 }

@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
-
+[System.Serializable]
 public class Genome
 {
 	public float[] genome;
@@ -29,10 +29,10 @@ public class Genome
     }
 
 }
-
+[System.Serializable]
 public class GeneticAlgorithm 
 {
-	List<Genome> population = new List<Genome>();
+	public List<Genome> population = new List<Genome>();
 	List<Genome> newPopulation = new List<Genome>();
 
 	float totalFitness;
