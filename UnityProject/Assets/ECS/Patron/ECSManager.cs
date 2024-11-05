@@ -75,7 +75,7 @@ public static class ECSManager
         return entities[entityID].ContainsComponentType<ComponentType>();
     }
 
-    public static IEnumerable<uint> GetEntitiesWhitComponentTypes(params Type[] componentTypes)
+    public static IEnumerable<uint> GetEntitiesWithComponentTypes(params Type[] componentTypes)
     {
         ConcurrentBag<uint> matchs = new ConcurrentBag<uint>();
         Parallel.ForEach(entities, parallelOptions, entity =>

@@ -19,7 +19,7 @@ public class RadiusBoidSystem : ECSSystem
         nearBoidsComponents ??= ECSManager.GetComponents<RadiusComponent>();
         positionComponents ??= ECSManager.GetComponents<PositionComponent>();
         queryedEntities ??=
-            ECSManager.GetEntitiesWhitComponentTypes(typeof(RadiusComponent), typeof(PositionComponent));
+            ECSManager.GetEntitiesWithComponentTypes(typeof(RadiusComponent), typeof(PositionComponent));
 
     }
 

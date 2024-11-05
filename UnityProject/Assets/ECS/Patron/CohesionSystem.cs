@@ -25,7 +25,7 @@ public class CohesionSystem : ECSSystem
         cohesionComponents ??= ECSManager.GetComponents<CohesionComponent>();
         positionComponents ??= ECSManager.GetComponents<PositionComponent>();
         queryedEntities ??=
-            ECSManager.GetEntitiesWhitComponentTypes(typeof(RadiusComponent), typeof(PositionComponent),
+            ECSManager.GetEntitiesWithComponentTypes(typeof(RadiusComponent), typeof(PositionComponent),
                 typeof(CohesionComponent));
 
 

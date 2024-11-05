@@ -23,7 +23,7 @@ public class DirectionSystem : ECSSystem
         directionComponents ??= ECSManager.GetComponents<DirectionComponent>();
         objectiveComponents ??= ECSManager.GetComponents<ObjectiveComponent>();
         queryedEntities ??=
-            ECSManager.GetEntitiesWhitComponentTypes(typeof(ObjectiveComponent), typeof(PositionComponent),
+            ECSManager.GetEntitiesWithComponentTypes(typeof(ObjectiveComponent), typeof(PositionComponent),
                 typeof(DirectionComponent));
     }
 

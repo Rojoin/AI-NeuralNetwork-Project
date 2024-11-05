@@ -24,7 +24,7 @@ public class SeparationSystem : ECSSystem
         separationComponents ??= ECSManager.GetComponents<SeparationComponent>();
         positionComponents ??= ECSManager.GetComponents<PositionComponent>();
         queryedEntities ??=
-            ECSManager.GetEntitiesWhitComponentTypes(typeof(RadiusComponent), typeof(PositionComponent),
+            ECSManager.GetEntitiesWithComponentTypes(typeof(RadiusComponent), typeof(PositionComponent),
                 typeof(SeparationComponent));
 
 
