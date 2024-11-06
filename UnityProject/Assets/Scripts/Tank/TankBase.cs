@@ -18,14 +18,14 @@ public class TankBase : MonoBehaviour
     }
 
     protected Genome genome;
-    protected NeuralNetwork brain;
+    protected Brain brain;
     protected IMinable nearMine;
     protected IMinable goodMine;
     protected IMinable badMine;
     protected float[] inputs;
     private float fitnessMultiplyer = 1.0f;
 
-    public void SetBrain(Genome genome, NeuralNetwork brain)
+    public void SetBrain(Genome genome, Brain brain)
     {
         this.genome = genome;
         this.brain = brain;

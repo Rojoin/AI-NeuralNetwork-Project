@@ -2,7 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 
-public class NeuralNetwork
+public class Brain
 {
 	List<NeuronLayer> layers = new List<NeuronLayer>();
 	int totalWeightsCount = 0;
@@ -13,7 +13,7 @@ public class NeuralNetwork
         get { return inputsCount; }
     }
 
-	public NeuralNetwork()
+	public Brain()
 	{
 	}
 
@@ -24,7 +24,6 @@ public class NeuralNetwork
 			Debug.LogError("Call AddFirstNeuronLayer(int inputsCount, float bias, float p) for the first layer.");
 			return false;
 		}
-
 		return AddNeuronLayer(layers[layers.Count - 1].OutputsCount, neuronsCount, bias, p);
 	}
 
@@ -35,7 +34,6 @@ public class NeuralNetwork
 			Debug.LogError("Call AddNeuronLayer(int neuronCount, float bias, float p) for the rest of the layers.");
 			return false;
 		}
-		
 		this.inputsCount = inputsCount;
 
 		return AddNeuronLayer(inputsCount, inputsCount, bias, p);

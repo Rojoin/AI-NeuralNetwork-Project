@@ -29,7 +29,8 @@ public class AligmentSystem : ECSSystem
         positionComponents ??= ECSManager.GetComponents<PositionComponent>();
         speedComponents ??= ECSManager.GetComponents<SpeedComponent>();
         queryedEntities ??=
-            ECSManager.GetEntitiesWithComponentTypes(typeof(RadiusComponent), typeof(PositionComponent),typeof(SpeedComponent),typeof(FowardComponent),
+            ECSManager.GetEntitiesWithComponentTypes(typeof(RadiusComponent), typeof(PositionComponent),
+                typeof(SpeedComponent), typeof(FowardComponent),
                 typeof(AlignmentComponent));
         AddRadius();
     }

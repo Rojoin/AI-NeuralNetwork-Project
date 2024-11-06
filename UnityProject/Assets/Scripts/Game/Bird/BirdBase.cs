@@ -14,7 +14,7 @@ public class BirdBase : MonoBehaviour
     }
 
     protected Genome genome;
-    protected NeuralNetwork brain;
+    protected Brain brain;
     protected BirdBehaviour birdBehaviour;
 
     private void Awake()
@@ -22,7 +22,7 @@ public class BirdBase : MonoBehaviour
         birdBehaviour = GetComponent<BirdBehaviour>();
     }
 
-    public void SetBrain(Genome genome, NeuralNetwork brain)
+    public void SetBrain(Genome genome, Brain brain)
     {
         this.genome = genome;
         this.brain = brain;

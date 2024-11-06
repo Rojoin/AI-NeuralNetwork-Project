@@ -32,7 +32,7 @@ public class PopulationManager : MonoBehaviour
 
     List<Tank> populationGOs = new List<Tank>();
     List<Genome> population = new List<Genome>();
-    List<NeuralNetwork> brains = new List<NeuralNetwork>();
+    List<Brain> brains = new List<Brain>();
     List<IMinable> mines = new List<IMinable>();
     List<IMinable> goodMines = new List<IMinable>();
     List<IMinable> badMines = new List<IMinable>();
@@ -144,7 +144,7 @@ public class PopulationManager : MonoBehaviour
 
         for (int i = 0; i < PopulationCount; i++)
         {
-            NeuralNetwork brain = CreateBrain();
+            Brain brain = CreateBrain();
 
             Genome genome = new Genome(brain.GetTotalWeightsCount());
 
@@ -159,9 +159,9 @@ public class PopulationManager : MonoBehaviour
     }
 
     // Creates a new NeuralNetwork
-    NeuralNetwork CreateBrain()
+    Brain CreateBrain()
     {
-        NeuralNetwork brain = new NeuralNetwork();
+        Brain brain = new Brain();
 
         // Add first neuron layer that has as many neurons as inputs
         brain.AddFirstNeuronLayer(InputsCount, Bias, P);
@@ -204,7 +204,7 @@ public class PopulationManager : MonoBehaviour
         // Set the new genomes as each NeuralNetwork weights
         for (int i = 0; i < PopulationCount; i++)
         {
-            NeuralNetwork brain = brains[i];
+            Brain brain = brains[i];
 
             brain.SetWeights(newGenomes[i].genome);
 
@@ -274,7 +274,7 @@ public class PopulationManager : MonoBehaviour
 
     #region Helpers
 
-    Tank CreateTank(Genome genome, NeuralNetwork brain)
+    Tank CreateTank(Genome genome, Brain brain)
     {
         Vector3 position = GetRandomPos();
         GameObject go = Instantiate<GameObject>(TankPrefab, position, GetRandomRot());

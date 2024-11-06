@@ -36,32 +36,4 @@ public sealed class MovementSystem : ECSSystem
     }
 }
 
-public sealed class SigmoidSystem : ECSSystem
-{
-    private ParallelOptions parallelOptions;
 
-    private IDictionary<uint, PositionComponent> positionComponents;
-    private IDictionary<uint, VelocityComponent> velocityComponents;
-    private IEnumerable<uint> queryedEntities;
-
-    public override void Initialize()
-    {
-        parallelOptions = new ParallelOptions { MaxDegreeOfParallelism = 32 };
-    }
-
-
-    protected override void PreExecute(float deltaTime)
-    {
-        queryedEntities??= ECSManager.GetEntitiesWithComponentTypes(typeof(PositionComponent), typeof(VelocityComponent));
-    }
-
-    protected override void Execute(float deltaTime)
-    {
-        throw new System.NotImplementedException();
-    }
-
-    protected override void PostExecute(float deltaTime)
-    {
-        throw new System.NotImplementedException();
-    }
-}
