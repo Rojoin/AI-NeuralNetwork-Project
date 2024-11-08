@@ -44,7 +44,7 @@ public enum AgentType
 
 public class AgentManager
 {
-    private BrainData<AgentType> brainData;
+    private BrainData brainData;
     
     
     public int generation { get; private set; }

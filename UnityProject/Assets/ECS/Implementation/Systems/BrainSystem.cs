@@ -15,7 +15,7 @@ public class BrainSystem : ECSSystem
     private IDictionary<uint, OutputLayerComponent> outputsLayerComponents;
     private IDictionary<uint, OutputComponent> outputsComponents;
     private IDictionary<uint, InputComponent> inputComponents;
-    private IEnumerable<uint> queryedEntities;
+    private IEnumerable<uint> queriedEntities;
 
     public override void Initialize()
     {
@@ -31,7 +31,7 @@ public class BrainSystem : ECSSystem
         outputsLayerComponents ??= ECSManager.GetComponents<OutputLayerComponent>();
         outputsComponents ??= ECSManager.GetComponents<OutputComponent>();
         hiddenLayerComponents ??= ECSManager.GetComponents<HiddenLayerComponent>();
-        queryedEntities ??= ECSManager.GetEntitiesWithComponentTypes(
+        queriedEntities ??= ECSManager.GetEntitiesWithComponentTypes(
             typeof(SigmoidComponent),
             typeof(InputLayerComponent),
             typeof(InputComponent),
@@ -43,7 +43,7 @@ public class BrainSystem : ECSSystem
 
     protected override void Execute(float deltaTime)
     {
-        Parallel.ForEach(queryedEntities, parallelOptions, entity =>
+        Parallel.ForEach(queriedEntities, parallelOptions, entity =>
         {
             float[] inputs = inputComponents[entity].inputs;
 
