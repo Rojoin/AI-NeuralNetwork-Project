@@ -36,7 +36,7 @@ public class Neuron
 
 		a += bias * weights[weights.Length - 1];
 
-		return Sigmoid(a);
+		return Sigmoid(a,p);
 	}
 
 	public int SetWeights(float[] newWeights, int fromId)
@@ -53,12 +53,8 @@ public class Neuron
 	{
 		return this.weights;
 	}
-
-	private float Sigmoid(float a)
-	{
-		return 1.0f / (1.0f + Mathf.Exp(-a / p));
-	}
-	public static float SigmoidS(float a,float p)
+	
+	public static float Sigmoid(float a,float p)
 	{
 		return 1.0f / (1.0f + Mathf.Exp(-a / p));
 	}

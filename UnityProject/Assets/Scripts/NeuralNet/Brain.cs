@@ -7,7 +7,15 @@ public class Brain
 	List<NeuronLayer> layers = new List<NeuronLayer>();
 	int totalWeightsCount = 0;
     int inputsCount = 0;
+	private float fitness = 1;
+	public float FitnessReward;
+	public float FitnessMultiplier;
 
+    int fitnessCount = 0;
+    
+    public float bias = 1;
+    public	float p = 0.5f;
+    
     public int InputsCount
     {
         get { return inputsCount; }
@@ -17,6 +25,10 @@ public class Brain
 	{
 	}
 
+	public void ApplyFitness()
+	{
+		fitness *= FitnessReward * FitnessMultiplier > 0 ? FitnessMultiplier : 0;
+	}
 	public bool AddNeuronLayer(int neuronsCount, float bias, float p)
 	{
 		if (layers.Count == 0)

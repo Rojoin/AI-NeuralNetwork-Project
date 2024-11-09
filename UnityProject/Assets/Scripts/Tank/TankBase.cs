@@ -71,7 +71,7 @@ public class TankBase : MonoBehaviour
         this.transform.rotation *= Quaternion.AngleAxis(rotFactor * RotSpeed * dt, Vector3.up);
         pos += this.transform.forward * Mathf.Abs(rightForce + leftForce) * 0.5f * Speed * dt;
         this.transform.position = pos;
-        if (!Mathf.Approximately(Neuron.SigmoidS(force, 1), 0))
+        if (!Mathf.Approximately(Neuron.Sigmoid(force, 1), 0))
         {
             FitnessMultiplyer -= 0.05f;
         }
