@@ -3,6 +3,23 @@ using System.Collections.Generic;
 using System.Numerics;
 using Miner.SecondExam.Agent;
 
+public enum CarnivoreStates
+{
+    Move,
+    Eat,
+    Escape,
+    Dead,
+    Corpse
+}
+
+public enum CarnivoreFlags
+{
+    ToMove,
+    ToEat,
+    ToEscape,
+    ToDead,
+    ToCorpse
+}
 
 public class CarnivoreMoveState : SporeMoveState
 {
@@ -24,7 +41,7 @@ public class CarnivoreMoveState : SporeMoveState
             {
                 herbivore.ReceiveDamage();
             }
-            
+
             Vector2[] direction = new Vector2[movesPerTurn];
             for (int i = 0; i < direction.Length; i++)
             {
@@ -68,98 +85,149 @@ public class CarnivoreMoveState : SporeMoveState
         return default;
     }
 }
+
 public class CarnivoreEatState : SporeEatState
-    {
-        public override BehaviourActions GetTickBehaviours(params object[] parameters)
-        {
-            BehaviourActions behaviour = new BehaviourActions();
-            
-            float[] outputs = parameters[0] as float[];
-            position = (Vector2)parameters[1];
-            Vector2 nearFoodPos = (Vector2)parameters[2];
-            bool hasEatenEnoughFood = (bool)parameters[3];
-            int counterEating = (int)parameters[4];
-            int maxEating = (int)parameters[5];
-            var onHasEatenEnoughFood = parameters[6] as Action<bool>;
-            var onEaten = parameters[7] as Action<int>;
-            Herbivore herbivore = parameters[8] as Herbivore;
-            behaviour.AddMultiThreadBehaviour(0, () =>
-            {
-                if (herbivore == null)
-                {
-                    return;
-                }
-
-                if (outputs[0] >= 0f)
-                {
-                    if (position == nearFoodPos && !hasEatenEnoughFood)
-                    {
-                        if (herbivore.CanBeEaten())
-                        {
-                            //TODO: Eat++
-                            //Fitness ++
-                            onEaten(++counterEating);
-                            brain.FitnessReward += 20;
-                            if (counterEating == maxEating)
-                            {
-                                brain.FitnessReward += 30;
-                                onHasEatenEnoughFood.Invoke(true);
-                            }
-                            //If comi 5
-                            // fitness skyrocket
-                        }
-                    }
-                    else if (hasEatenEnoughFood || position != nearFoodPos)
-                    {
-                        brain.FitnessMultiplier -= 0.05f;
-                    }
-                }
-                else
-                {
-                    if (position == nearFoodPos && !hasEatenEnoughFood)
-                    {
-                        brain.FitnessMultiplier -= 0.05f;
-                    }
-                    else if (hasEatenEnoughFood)
-                    {
-                        brain.FitnessMultiplier += 0.10f;
-                    }
-                }
-            });
-            return behaviour;
-        }
-
-        public override BehaviourActions GetEnterBehaviours(params object[] parameters)
-        {
-            brain = parameters[0] as Brain;
-            return default;
-        }
-
-        public override BehaviourActions GetExitBehaviours(params object[] parameters)
-        {
-            brain.ApplyFitness();
-            return default;
-        }
-    }
-public class Carnivore : SporeAgent
 {
-    FSM<SporeAgentStates, SporeAgentFlags> fsm = new FSM<SporeAgentStates, SporeAgentFlags>();
+    public override BehaviourActions GetTickBehaviours(params object[] parameters)
+    {
+        BehaviourActions behaviour = new BehaviourActions();
+
+        float[] outputs = parameters[0] as float[];
+        position = (Vector2)parameters[1];
+        Vector2 nearFoodPos = (Vector2)parameters[2];
+        bool hasEatenEnoughFood = (bool)parameters[3];
+        int counterEating = (int)parameters[4];
+        int maxEating = (int)parameters[5];
+        var onHasEatenEnoughFood = parameters[6] as Action<bool>;
+        var onEaten = parameters[7] as Action<int>;
+        Herbivore herbivore = parameters[8] as Herbivore;
+        behaviour.AddMultiThreadBehaviour(0, () =>
+        {
+            if (herbivore == null)
+            {
+                return;
+            }
+
+            if (outputs[0] >= 0f)
+            {
+                if (position == nearFoodPos && !hasEatenEnoughFood)
+                {
+                    if (herbivore.CanBeEaten())
+                    {
+                        //Fitness ++
+                        onEaten(++counterEating);
+                        brain.FitnessReward += 20;
+                        if (counterEating == maxEating)
+                        {
+                            brain.FitnessReward += 30;
+                            onHasEatenEnoughFood.Invoke(true);
+                        }
+                        //If comi 5
+                        // fitness skyrocket
+                    }
+                }
+                else if (hasEatenEnoughFood || position != nearFoodPos)
+                {
+                    brain.FitnessMultiplier -= 0.05f;
+                }
+            }
+            else
+            {
+                if (position == nearFoodPos && !hasEatenEnoughFood)
+                {
+                    brain.FitnessMultiplier -= 0.05f;
+                }
+                else if (hasEatenEnoughFood)
+                {
+                    brain.FitnessMultiplier += 0.10f;
+                }
+            }
+        });
+        return behaviour;
+    }
+
+    public override BehaviourActions GetEnterBehaviours(params object[] parameters)
+    {
+        brain = parameters[0] as Brain;
+        return default;
+    }
+
+    public override BehaviourActions GetExitBehaviours(params object[] parameters)
+    {
+        brain.ApplyFitness();
+        return default;
+    }
+}
+
+public class Carnivore : SporeAgent<CarnivoreStates, CarnivoreFlags>
+{
+    public Brain moveBrain;
+    public Brain eatBrain;
+    int counterEating = 0;
+    int maxEating = 3;
+    bool hasEatenEnoughFood = false;
 
     public Carnivore()
     {
-        fsm = new FSM<SporeAgentStates, SporeAgentFlags>();
-
-        fsm.AddBehaviour<HerbivoreMoveState>(SporeAgentStates.Move);
-        fsm.AddBehaviour<HerbivoreEatState>(SporeAgentStates.Eat);
-        fsm.AddBehaviour<HerbivoreEscapeState>(SporeAgentStates.Escape);
-        fsm.AddBehaviour<HerbivoreDeadState>(SporeAgentStates.Dead);
-        fsm.AddBehaviour<HerbivoreCorpseState>(SporeAgentStates.Corpse);
-
+        Action<bool> onHasEantenEnoughFood;
+        Action<Vector2> onMove;
+        Action<int> onEaten;
+        fsm.AddBehaviour<CarnivoreEatState>(CarnivoreStates.Eat,
+            onEnterParametes: () => { return new object[] { eatBrain }; }, onTickParametes: () =>
+            {
+                return new object[]
+                {
+                    eatBrain.outputs, position, GetNearFoodPos(),
+                    hasEatenEnoughFood, counterEating, maxEating,
+                    onHasEantenEnoughFood = b =>
+                        hasEatenEnoughFood = b,
+                    onEaten = i => counterEating = i,
+                    GetNearHerbivore()
+                };
+            });
+        fsm.AddBehaviour<CarnivoreMoveState>(CarnivoreStates.Move,
+            onEnterParametes: () => { return new object[] { eatBrain }; }, onTickParametes: () =>
+            {
+                return new object[]
+                {
+                    moveBrain.outputs, position, GetNearFoodPos(),
+                    onMove = MoveTo,
+                    GetNearHerbivore()
+                };
+            });
         //TODO: Add transitions
+        fsm.ForceState(CarnivoreStates.Move);
+    }
+
+    public override void DecideState(float[] outputs)
+    {
+        if (outputs[0] > 0.0f)
+        {
+            fsm.ForceState(CarnivoreStates.Move);
+        }
+        else if (outputs[1] > 0.0f)
+        {
+            fsm.ForceState(CarnivoreStates.Eat);
+        }
     }
 
     public override void Update(float deltaTime)
     {
+        DecideState(main.outputs);
         fsm.Tick();
+    }
+
+    public Vector2 GetNearFoodPos()
+    {
+        throw new NotImplementedException();
+    }
+
+    public Herbivore GetNearHerbivore()
+    {
+        throw new NotImplementedException();
+    }
+
+    public override void MoveTo(Vector2 dir)
+    {
     }
 }

@@ -10,7 +10,7 @@ public class Brain
 	private float fitness = 1;
 	public float FitnessReward;
 	public float FitnessMultiplier;
-
+	public float[] outputs;
     int fitnessCount = 0;
     
     public float bias = 1;

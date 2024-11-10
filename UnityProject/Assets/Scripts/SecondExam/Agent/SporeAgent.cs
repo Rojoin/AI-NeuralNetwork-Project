@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Numerics;
 
 namespace Miner.SecondExam.Agent
@@ -65,12 +66,21 @@ namespace Miner.SecondExam.Agent
 
     public abstract class SporeAgent
     {
+        
+    }
+    public abstract class SporeAgent<AgentStates,AgentFlags>: SporeAgent where AgentStates :Enum  where AgentFlags : Enum 
+    {
         protected Brain main;
-
+        protected Vector2 position;
+        protected bool hasEaten = false;
+    protected FSM<AgentStates, AgentFlags> fsm;
         public SporeAgent()
         {
+            fsm = new FSM<AgentStates, AgentFlags>();
         }
 
+        public abstract void DecideState(float[] outputs);
         public abstract void Update(float deltaTime);
+        public abstract void MoveTo(Vector2 dir);
     }
 }

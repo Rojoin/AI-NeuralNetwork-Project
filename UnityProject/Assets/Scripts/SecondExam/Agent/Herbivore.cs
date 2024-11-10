@@ -4,7 +4,7 @@ using System.Numerics;
 
 namespace Miner.SecondExam.Agent
 {
-    public enum SporeAgentStates
+    public enum HeribovoreStates
     {
         Move,
         Eat,
@@ -13,7 +13,7 @@ namespace Miner.SecondExam.Agent
         Corpse
     }
 
-    public enum SporeAgentFlags
+    public enum HerbivoreFlags
     {
         ToMove,
         ToEat,
@@ -293,7 +293,7 @@ namespace Miner.SecondExam.Agent
             {
                 if (lives <= 0)
                 {
-                    OnFlag.Invoke(SporeAgentFlags.ToCorpse);
+                    OnFlag.Invoke(HerbivoreFlags.ToCorpse);
                 }
             });
 
@@ -331,10 +331,8 @@ namespace Miner.SecondExam.Agent
         }
     }
 
-    public class Herbivore : SporeAgent
+    public sealed class Herbivore : SporeAgent<HeribovoreStates, HerbivoreFlags>
     {
-        public FSM<SporeAgentStates, SporeAgentFlags> fsm;
-        private Vector2 pos;
         List<Vector2> nearEnemy = new List<Vector2>();
         List<Vector2> nearFood = new List<Vector2>();
         private int lives = 3;
@@ -342,22 +340,38 @@ namespace Miner.SecondExam.Agent
         int currentFood = 3;
         bool hasEatenFood = false;
         private int maxMovementPerTurn = 3;
-
+        private Brain moveBrain;
+        private Brain escapeBrain;
+        private Brain eatBrain;
 
         public Herbivore()
         {
-            fsm = new FSM<SporeAgentStates, SporeAgentFlags>();
+            Action<Vector2> onMove;
+            fsm.AddBehaviour<HerbivoreMoveState>(HeribovoreStates.Move,
+                onEnterParametes: () => { return new object[] {moveBrain };},
+                onTickParametes: () => { return new object[] { moveBrain.outputs, position,GetNearestFoodPosition(),onMove = MoveTo ,GetNearestFood() }; });
+            fsm.AddBehaviour<HerbivoreEatState>(HeribovoreStates.Eat);
+            fsm.AddBehaviour<HerbivoreEscapeState>(HeribovoreStates.Escape);
+            fsm.AddBehaviour<HerbivoreDeadState>(HeribovoreStates.Dead);
+            fsm.AddBehaviour<HerbivoreCorpseState>(HeribovoreStates.Corpse);
 
-            fsm.AddBehaviour<HerbivoreMoveState>(SporeAgentStates.Move, onTickParametes:() =>
+            //TODO: Add transitions
+        }
+
+        public override void DecideState(float[] outputs)
+        {
+            if (outputs[0] > 0.0f)
             {
-                return new object[] { pos, currentFood };
-            });
-            fsm.AddBehaviour<HerbivoreEatState>(SporeAgentStates.Eat);
-            fsm.AddBehaviour<HerbivoreEscapeState>(SporeAgentStates.Escape);
-             fsm.AddBehaviour<HerbivoreDeadState>(SporeAgentStates.Dead);
-             fsm.AddBehaviour<HerbivoreCorpseState>(SporeAgentStates.Corpse);
-             
-             //TODO: Add transitions
+                fsm.ForceState(HeribovoreStates.Escape);
+            }
+            else if (outputs[1] > 0.0f)
+            {
+                fsm.ForceState(HeribovoreStates.Move);
+            }
+            else if (outputs[2] > 0.0f)
+            {
+                fsm.ForceState(HeribovoreStates.Eat);
+            }
         }
 
         public override void Update(float deltaTime)
@@ -365,23 +379,38 @@ namespace Miner.SecondExam.Agent
             fsm.Tick();
         }
 
+        public override void MoveTo(Vector2 dir)
+        {
+            position += dir;
+        }
+
         public void ReceiveDamage()
         {
             lives--;
-            if (lives <=0)
+            if (lives <= 0)
             {
-                fsm.ForceState(SporeAgentStates.Dead);
+                fsm.ForceState(HeribovoreStates.Dead);
             }
         }
 
         public bool CanBeEaten()
         {
-            if (fsm.currentState == (int)SporeAgentStates.Dead)
+            if (fsm.currentState == (int)HeribovoreStates.Dead)
             {
-                fsm.ForceState(SporeAgentStates.Corpse);
+                fsm.ForceState(HeribovoreStates.Corpse);
                 return true;
             }
+
             return false;
+        }
+
+        public Plant GetNearestFood()
+        {
+            throw new NotImplementedException();
+        } 
+        public Vector2 GetNearestFoodPosition()
+        {
+            throw new NotImplementedException();
         }
     }
 
@@ -406,10 +435,6 @@ namespace Miner.SecondExam.Agent
         public bool CanBeEaten()
         {
             return lives > 0;
-        }
-
-        public override void Update(float deltaTime)
-        {
         }
     }
 }
