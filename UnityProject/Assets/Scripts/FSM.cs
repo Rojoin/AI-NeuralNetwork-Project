@@ -43,7 +43,7 @@ public class FSM<EnumState, EnumFlag> where EnumState : Enum where EnumFlag : En
         behaviourOnExitParameters = new Dictionary<int, Func<object[]>>();
     }
 
-    private void Transition(Enum flag)
+    public void Transition(Enum flag)
     {
         if (transitions[currentState, Convert.ToInt32(flag)].destinationState != UNNASSIGNED_TRASNSITION)
         {

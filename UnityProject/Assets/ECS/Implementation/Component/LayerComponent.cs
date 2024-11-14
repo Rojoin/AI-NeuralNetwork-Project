@@ -11,13 +11,17 @@ public class Layer
     {
         this.neuronCount = neuronCount;
         this.weights = weights;
+    }   
+    public Layer(int neuronCount)
+    {
+        this.neuronCount = neuronCount;
     }
 }
 
 public class InputLayerComponent : LayerComponent
 {
     public Layer layer;
-
+public int inputCount;
     public InputLayerComponent(Layer layer)
     {
         this.layer = layer;

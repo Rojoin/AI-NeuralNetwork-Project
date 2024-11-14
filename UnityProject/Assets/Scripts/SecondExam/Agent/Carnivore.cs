@@ -196,24 +196,27 @@ public class Carnivore : SporeAgent<CarnivoreStates, CarnivoreFlags>
                 };
             });
         //TODO: Add transitions
+        fsm.SetTransition(CarnivoreStates.Eat,CarnivoreFlags.ToMove ,CarnivoreStates.Move);
+        fsm.SetTransition(CarnivoreStates.Move,CarnivoreFlags.ToEat ,CarnivoreStates.Eat);
         fsm.ForceState(CarnivoreStates.Move);
+        
     }
 
     public override void DecideState(float[] outputs)
     {
         if (outputs[0] > 0.0f)
         {
-            fsm.ForceState(CarnivoreStates.Move);
+            fsm.Transition(CarnivoreFlags.ToMove);
         }
         else if (outputs[1] > 0.0f)
         {
-            fsm.ForceState(CarnivoreStates.Eat);
+            fsm.Transition(CarnivoreFlags.ToEat);
         }
     }
 
     public override void Update(float deltaTime)
     {
-        DecideState(main.outputs);
+        DecideState(mainBrain.outputs);
         fsm.Tick();
     }
 

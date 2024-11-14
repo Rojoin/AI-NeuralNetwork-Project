@@ -70,9 +70,10 @@ namespace Miner.SecondExam.Agent
     }
     public abstract class SporeAgent<AgentStates,AgentFlags>: SporeAgent where AgentStates :Enum  where AgentFlags : Enum 
     {
-        protected Brain main;
+        public Brain mainBrain;
         protected Vector2 position;
         protected bool hasEaten = false;
+        protected bool isActive;
     protected FSM<AgentStates, AgentFlags> fsm;
         public SporeAgent()
         {

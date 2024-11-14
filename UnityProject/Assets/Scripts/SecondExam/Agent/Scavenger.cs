@@ -89,23 +89,24 @@ public sealed class ScavengerMoveState : SporeMoveState
 
 public class Scavenger : SporeAgent<ScavengerStates, ScavengerFlags>
 {
-    Brain flockingBrain;
+    public Brain flockingBrain;
     float minEatRadius;
     protected Vector2 dir;
+    protected float speed;
 
     public Scavenger()
     {
-        main = new Brain();
+        mainBrain = new Brain();
         minEatRadius = 4f;
         
         Action<Vector2> setDir;
         fsm.AddBehaviour<ScavengerMoveState>(ScavengerStates.Move,
-            onEnterParametes: () => { return new object[] { main, position, minEatRadius }; },
+            onEnterParametes: () => { return new object[] { mainBrain, position, minEatRadius }; },
             onTickParametes: () =>
             {
                 return new object[]
                 {
-                    main.outputs, position, minEatRadius, GetNearFoodPos(), hasEaten,GetNearHerbivore(),
+                    mainBrain.outputs, position, minEatRadius, GetNearFoodPos(), hasEaten,GetNearHerbivore(),
                     setDir = MoveTo,
                 };
             });
@@ -121,6 +122,12 @@ public class Scavenger : SporeAgent<ScavengerStates, ScavengerFlags>
     public override void Update(float deltaTime)
     {
         fsm.Tick();
+        Move(deltaTime);
+    }
+
+    private void Move(float deltaTime)
+    {
+        position += dir * speed * deltaTime;
     }
 
     public Vector2 GetNearFoodPos()

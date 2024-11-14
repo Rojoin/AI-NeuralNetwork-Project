@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
-using System.Numerics;
+using UnityEngine;
+using Vector2 = System.Numerics.Vector2;
 
 namespace Miner.SecondExam.Agent
 {
@@ -194,7 +195,7 @@ namespace Miner.SecondExam.Agent
         List<Vector2> nearEnemyPositions = new List<Vector2>();
         float positiveHalf;
         float negativeHalf;
-        private float previousDistance;
+        private float previousDistance = float.MaxValue;
 
         public override BehaviourActions GetTickBehaviours(params object[] parameters)
         {
@@ -336,52 +337,87 @@ namespace Miner.SecondExam.Agent
         List<Vector2> nearEnemy = new List<Vector2>();
         List<Vector2> nearFood = new List<Vector2>();
         private int lives = 3;
+        private int livesUntilCountdownDissapears = 30;
         private int maxFood = 5;
-        int currentFood = 3;
+        int currentFood = 0;
         bool hasEatenFood = false;
         private int maxMovementPerTurn = 3;
-        private Brain moveBrain;
-        private Brain escapeBrain;
-        private Brain eatBrain;
+        public Brain moveBrain;
+        public Brain escapeBrain;
+        public Brain eatBrain;
 
         public Herbivore()
         {
             Action<Vector2> onMove;
+            Action<bool> onEatenFood;
+            Action<int> onEat;
             fsm.AddBehaviour<HerbivoreMoveState>(HeribovoreStates.Move,
-                onEnterParametes: () => { return new object[] {moveBrain };},
-                onTickParametes: () => { return new object[] { moveBrain.outputs, position,GetNearestFoodPosition(),onMove = MoveTo ,GetNearestFood() }; });
-            fsm.AddBehaviour<HerbivoreEatState>(HeribovoreStates.Eat);
-            fsm.AddBehaviour<HerbivoreEscapeState>(HeribovoreStates.Escape);
-            fsm.AddBehaviour<HerbivoreDeadState>(HeribovoreStates.Dead);
+                onEnterParametes: () => { return new object[] { moveBrain }; },
+                onTickParametes: () =>
+                {
+                    return new object[]
+                        { moveBrain.outputs, position, GetNearestFoodPosition(), onMove = MoveTo, GetNearestFood() };
+                });
+            fsm.AddBehaviour<HerbivoreEatState>(HeribovoreStates.Eat,
+                onEnterParametes: () => { return new object[] { eatBrain }; },
+                onTickParametes: () =>
+                {
+                    return new object[]
+                    {
+                        eatBrain.outputs, position, GetNearestFood(), hasEatenFood, currentFood, maxFood,
+                        onEatenFood = b => { hasEatenFood = b; },onEat = a => currentFood=a, GetNearestFood(),
+                    };
+                });
+            fsm.AddBehaviour<HerbivoreEscapeState>(HeribovoreStates.Escape,
+                onEnterParametes: () => new object[] { escapeBrain },
+                onTickParametes: () =>
+                {
+                    return new object[] { escapeBrain.outputs, position, GetNearEnemiesPositions(), onMove = MoveTo };
+                }
+            );
+            fsm.AddBehaviour<HerbivoreDeadState>(HeribovoreStates.Dead,
+                onTickParametes: () => { return new object[] { lives }; });
             fsm.AddBehaviour<HerbivoreCorpseState>(HeribovoreStates.Corpse);
 
-            //TODO: Add transitions
+            fsm.SetTransition(HeribovoreStates.Move, HerbivoreFlags.ToEat, HeribovoreStates.Eat);
+            fsm.SetTransition(HeribovoreStates.Move, HerbivoreFlags.ToEscape, HeribovoreStates.Escape);
+            fsm.SetTransition(HeribovoreStates.Escape, HerbivoreFlags.ToEat, HeribovoreStates.Eat);
+            fsm.SetTransition(HeribovoreStates.Escape, HerbivoreFlags.ToMove, HeribovoreStates.Move);
+            fsm.SetTransition(HeribovoreStates.Eat, HerbivoreFlags.ToMove, HeribovoreStates.Move);
+            fsm.SetTransition(HeribovoreStates.Eat, HerbivoreFlags.ToEscape, HeribovoreStates.Escape);
+            fsm.SetTransition(HeribovoreStates.Dead, HerbivoreFlags.ToCorpse, HeribovoreStates.Corpse);
         }
-
+        
         public override void DecideState(float[] outputs)
         {
             if (outputs[0] > 0.0f)
             {
-                fsm.ForceState(HeribovoreStates.Escape);
+                fsm.Transition(HeribovoreStates.Escape);
             }
             else if (outputs[1] > 0.0f)
             {
-                fsm.ForceState(HeribovoreStates.Move);
+                fsm.Transition(HeribovoreStates.Move);
             }
             else if (outputs[2] > 0.0f)
             {
-                fsm.ForceState(HeribovoreStates.Eat);
+                fsm.Transition(HeribovoreStates.Eat);
             }
         }
 
         public override void Update(float deltaTime)
         {
+            DecideState(mainBrain.outputs);
             fsm.Tick();
         }
 
         public override void MoveTo(Vector2 dir)
         {
             position += dir;
+        }
+
+        public List<Vector2> GetNearEnemiesPositions()
+        {
+            throw new NotImplementedException();
         }
 
         public void ReceiveDamage()
@@ -407,7 +443,8 @@ namespace Miner.SecondExam.Agent
         public Plant GetNearestFood()
         {
             throw new NotImplementedException();
-        } 
+        }
+
         public Vector2 GetNearestFoodPosition()
         {
             throw new NotImplementedException();

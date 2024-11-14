@@ -14,8 +14,9 @@ public class Brain
     int fitnessCount = 0;
     
     public float bias = 1;
-    public	float p = 0.5f;
-    
+    public float p = 0.5f;
+    public float[] inputs;
+
     public int InputsCount
     {
         get { return inputsCount; }
