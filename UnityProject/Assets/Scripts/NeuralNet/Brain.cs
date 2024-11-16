@@ -40,7 +40,8 @@ public class Brain
 		return AddNeuronLayer(layers[layers.Count - 1].OutputsCount, neuronsCount, bias, p);
 	}
 
- 	public bool AddFirstNeuronLayer(int inputsCount, float bias, float p)
+ 	public bool AddFirstNeuronLayer
+	    (int inputsCount, float bias, float p)
 	{
 		if (layers.Count != 0)
 		{
