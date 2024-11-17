@@ -152,7 +152,6 @@ public class Brain
     }
     public Layer[] GetHiddenLayer()
     {
-        
         Layer[] layersToReturn = new Layer[layers.Count-2 > 0 ? layers.Count - 2 : 0];
         var count = 0;
         for (var k = 0; k < this.layers.Count; k++)

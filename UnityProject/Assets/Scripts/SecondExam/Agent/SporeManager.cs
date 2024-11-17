@@ -37,7 +37,7 @@ namespace Miner.SecondExam.Agent
 
         public SporeManager()
         {
-            CreateBrains();
+            CreateAgents();
             ECSManager.Init();
             entities = new Dictionary<uint, Brain>();
             InitEntities();
@@ -67,7 +67,7 @@ namespace Miner.SecondExam.Agent
             }
         }
 
-        private void CreateBrains()
+        private void CreateAgents()
         {
             for (int i = 0; i < hervivoreCount; i++)
             {
@@ -215,8 +215,24 @@ namespace Miner.SecondExam.Agent
 
         public void Tick(float deltaTime)
         {
+            PreUpdateAgents(deltaTime);
             UpdateInputs();
             ECSManager.Tick(deltaTime);
+            AfterTick(deltaTime);
+        }
+
+        private void PreUpdateAgents(float deltaTime)
+        {
+            foreach (Herbivore herbi in herbis)
+            {
+                herbi.PreUpdate(deltaTime);
+            } foreach (Carnivore carn in carnivores)
+            {
+                carn.PreUpdate(deltaTime);
+            } foreach (Scavenger scav in scavengers)
+            {
+                scav.PreUpdate(deltaTime);
+            }
         }
 
         private void UpdateInputs()
