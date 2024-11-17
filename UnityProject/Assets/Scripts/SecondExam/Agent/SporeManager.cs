@@ -22,7 +22,7 @@ namespace Miner.SecondExam.Agent
         private List<Herbivore> herbis = new List<Herbivore>();
         private List<Carnivore> carnivores = new List<Carnivore>();
         private List<Scavenger> scavengers = new List<Scavenger>();
-        
+
         private List<Brain> herbMainBrains = new List<Brain>();
         private List<Brain> herbEatBrains = new List<Brain>();
         private List<Brain> herbMoveBrains = new List<Brain>();
@@ -100,7 +100,7 @@ namespace Miner.SecondExam.Agent
             ECSManager.AddComponent<BiasComponent>(entityID, new BiasComponent(brain.bias));
             ECSManager.AddComponent<SigmoidComponent>(entityID, new SigmoidComponent(brain.p));
             ECSManager.AddComponent<InputLayerComponent>(entityID, new InputLayerComponent(brain.GetInputLayer()));
-            ECSManager.AddComponent<HiddenLayerComponent>(entityID, new HiddenLayerComponent(brain.GetHiddenLayer()));
+            ECSManager.AddComponent<HiddenLayerComponent>(entityID, new HiddenLayerComponent(brain.GetHiddenLayers()));
             ECSManager.AddComponent<OutputLayerComponent>(entityID, new OutputLayerComponent(brain.GetOutputLayer()));
             ECSManager.AddComponent<OutputComponent>(entityID, new OutputComponent(brain.outputs));
             ECSManager.AddComponent<InputComponent>(entityID, new InputComponent(brain.inputs));
@@ -109,8 +109,50 @@ namespace Miner.SecondExam.Agent
 
         public void EpochAllBrains()
         {
-            
+            Epoch(herbMainBrains);
+            Epoch(herbMoveBrains);
+            Epoch(herbEatBrains);
+            Epoch(herbEscapeBrains);
+            Epoch(carnMainBrains);
+            Epoch(carnEatBrains);
+            Epoch(carnMoveBrains);
+            Epoch(scavMainBrains);
+            Epoch(scavFlokingBrains);
+
+            foreach (KeyValuePair<uint, Brain> entity in entities)
+            {
+                HiddenLayerComponent inputComponent = ECSManager.GetComponent<HiddenLayerComponent>(entity.Key);
+                inputComponent.hiddenLayers = entity.Value.GetHiddenLayers();
+            }
+
+            void Epoch(List<Brain> brains)
+            {
+                Genome[] newGenomes = this.Epoch(GetGenomes(brains));
+
+                for (int i = 0; i < brains.Count; i++)
+                {
+                    Brain brain = brains[i];
+                    brain.SetWeights(newGenomes[i].genome);
+                }
+            }
         }
+
+        private Genome[] GetGenomes(List<Brain> brains)
+        {
+            List<Genome> genomes = new List<Genome>();
+            foreach (var brain in brains)
+            {
+                Genome genome = new Genome(brain.GetTotalWeightsCount());
+
+                brain.SetWeights(genome.genome);
+                brains.Add(brain);
+
+                genomes.Add(genome);
+            }
+
+            return genomes.ToArray();
+        }
+
         public Genome[] Epoch(Genome[] oldGenomes)
         {
             float totalFitness = 0;
@@ -226,10 +268,14 @@ namespace Miner.SecondExam.Agent
             foreach (Herbivore herbi in herbis)
             {
                 herbi.PreUpdate(deltaTime);
-            } foreach (Carnivore carn in carnivores)
+            }
+
+            foreach (Carnivore carn in carnivores)
             {
                 carn.PreUpdate(deltaTime);
-            } foreach (Scavenger scav in scavengers)
+            }
+
+            foreach (Scavenger scav in scavengers)
             {
                 scav.PreUpdate(deltaTime);
             }

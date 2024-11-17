@@ -150,7 +150,7 @@ public class Brain
         Layer layer = new Layer(id,weights);
         return layer;
     }
-    public Layer[] GetHiddenLayer()
+    public Layer[] GetHiddenLayers()
     {
         Layer[] layersToReturn = new Layer[layers.Count-2 > 0 ? layers.Count - 2 : 0];
         var count = 0;
