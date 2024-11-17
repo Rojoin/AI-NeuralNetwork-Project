@@ -162,7 +162,7 @@ public class Brain
                 continue;
             }
             int id = layers[k].neurons.Length;
-            float[,] weights = new float[layers[k].neurons.Length, layers[0].neurons[0].WeightsCount];
+            float[,] weights = new float[layers[k].neurons.Length, layers[k].neurons[0].WeightsCount];
             for (var index = 0; index < layers[k].neurons.Length; index++)
             {
                 for (var j = 0; j < layers[k].neurons[index].WeightsCount; j++)
