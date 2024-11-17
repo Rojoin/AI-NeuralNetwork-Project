@@ -342,9 +342,9 @@ namespace Miner.SecondExam.Agent
         int currentFood = 0;
         bool hasEatenFood = false;
         private int maxMovementPerTurn = 3;
-        public Brain moveBrain;
-        public Brain escapeBrain;
-        public Brain eatBrain;
+        public Brain moveBrain = new Brain();
+        public Brain escapeBrain = new Brain();
+        public Brain eatBrain = new Brain();
 
         public Herbivore()
         {
@@ -365,7 +365,7 @@ namespace Miner.SecondExam.Agent
                     return new object[]
                     {
                         eatBrain.outputs, position, GetNearestFood(), hasEatenFood, currentFood, maxFood,
-                        onEatenFood = b => { hasEatenFood = b; },onEat = a => currentFood=a, GetNearestFood(),
+                        onEatenFood = b => { hasEatenFood = b; }, onEat = a => currentFood = a, GetNearestFood(),
                     };
                 });
             fsm.AddBehaviour<HerbivoreEscapeState>(HeribovoreStates.Escape,
@@ -387,7 +387,7 @@ namespace Miner.SecondExam.Agent
             fsm.SetTransition(HeribovoreStates.Eat, HerbivoreFlags.ToEscape, HeribovoreStates.Escape);
             fsm.SetTransition(HeribovoreStates.Dead, HerbivoreFlags.ToCorpse, HeribovoreStates.Corpse);
         }
-        
+
         public override void DecideState(float[] outputs)
         {
             if (outputs[0] > 0.0f)
@@ -402,6 +402,28 @@ namespace Miner.SecondExam.Agent
             {
                 fsm.Transition(HeribovoreStates.Eat);
             }
+        }
+
+        public override void PreUpdate(float deltaTime)
+        {
+            List<Vector2> enemies = GetNearEnemiesPositions();
+            Vector2 nearestFoodPosition = GetNearestFoodPosition();
+
+            mainBrain.inputs = new[]
+            {
+                position.X, position.Y, nearestFoodPosition.X, nearestFoodPosition.Y, hasEatenFood ? 1 : -1,
+                enemies[0].X, enemies[0].Y, enemies[1].X, enemies[1].Y, enemies[2].X,
+                enemies[2].Y
+            };
+            moveBrain.inputs = new[] { position.X, position.Y, nearestFoodPosition.X, nearestFoodPosition.Y };
+            eatBrain.inputs = new[]
+                { position.X, position.Y, nearestFoodPosition.X, nearestFoodPosition.Y, hasEatenFood ? 1 : -1 };
+
+            escapeBrain.inputs = new[]
+            {
+                position.X, position.Y, enemies[0].X, enemies[0].Y, enemies[1].X, enemies[1].Y, enemies[2].X,
+                enemies[2].Y
+            };
         }
 
         public override void Update(float deltaTime)

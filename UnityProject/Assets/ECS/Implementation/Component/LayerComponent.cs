@@ -21,7 +21,7 @@ public class Layer
 public class InputLayerComponent : LayerComponent
 {
     public Layer layer;
-public int inputCount;
+    public int inputCount;
     public InputLayerComponent(Layer layer)
     {
         this.layer = layer;
@@ -50,11 +50,11 @@ public class OutputLayerComponent : LayerComponent
 
 public class OutputComponent : ECSComponent
 {
-    public float[] output;
+    public float[] outputs;
 
-    public OutputComponent(float[] output)
+    public OutputComponent(float[] outputs)
     {
-        this.output = output;
+        this.outputs = outputs;
     }
 }
 public class InputComponent : ECSComponent

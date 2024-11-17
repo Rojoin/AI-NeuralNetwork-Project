@@ -119,6 +119,14 @@ public class Scavenger : SporeAgent<ScavengerStates, ScavengerFlags>
         throw new NotImplementedException();
     }
 
+    public override void PreUpdate(float deltaTime)
+    {
+        var nearFoodPos = GetNearFoodPos();
+        mainBrain.inputs = new[] { position.X, position.Y, minEatRadius, nearFoodPos.X, nearFoodPos.Y};
+        //Todo: preguntarle a lean
+        flockingBrain.inputs = new[] { 0.0f,};
+    }
+
     public override void Update(float deltaTime)
     {
         fsm.Tick();

@@ -47,37 +47,37 @@ public class BrainSystem : ECSSystem
         {
             float[] inputs = inputComponents[entity].inputs;
 
-            outputsComponents[entity].output = FirstLayerSynapsis(entity, inputs);
-            inputComponents[entity].inputs = outputsComponents[entity].output;
+            outputsComponents[entity].outputs = FirstLayerSynapsis(entity, inputs);
+            inputComponents[entity].inputs = outputsComponents[entity].outputs;
             
             for (int layer = 0; layer < hiddenLayerComponents[entity].hiddenLayers.Length; layer++)
             {
-                outputsComponents[entity].output = LayerSynapsis(entity, inputs, layer);
-                inputs = outputsComponents[entity].output;
+                outputsComponents[entity].outputs = LayerSynapsis(entity, inputs, layer);
+                inputs = outputsComponents[entity].outputs;
             }
-            outputsComponents[entity].output = OutputLayerSynapsis(entity, inputs);
+            outputsComponents[entity].outputs = OutputLayerSynapsis(entity, inputs);
         });
     }
 
     private float[] LayerSynapsis(uint entity, float[] inputs, int layer)
     {
         Parallel.For(0, inputs.Length,
-            neuron => { outputsComponents[entity].output[neuron] = NeuronSynapsis(entity, neuron, inputs, layer); });
-        return outputsComponents[entity].output;
+            neuron => { outputsComponents[entity].outputs[neuron] = NeuronSynapsis(entity, neuron, inputs, layer); });
+        return outputsComponents[entity].outputs;
     }
 
     private float[] FirstLayerSynapsis(uint entity, float[] inputs)
     {
         Parallel.For(0, inputs.Length,
-            neuron => { outputsComponents[entity].output[neuron] = FirstNeuronSynapsis(entity, neuron, inputs); });
-        return outputsComponents[entity].output;
+            neuron => { outputsComponents[entity].outputs[neuron] = FirstNeuronSynapsis(entity, neuron, inputs); });
+        return outputsComponents[entity].outputs;
     }
 
     private float[] OutputLayerSynapsis(uint entity, float[] inputs)
     {
         Parallel.For(0, inputs.Length,
-            neuron => { outputsComponents[entity].output[neuron] = LastNeuronSynapsis(entity, neuron, inputs); });
-        return outputsComponents[entity].output;
+            neuron => { outputsComponents[entity].outputs[neuron] = LastNeuronSynapsis(entity, neuron, inputs); });
+        return outputsComponents[entity].outputs;
     }
 
     private float NeuronSynapsis(uint entity, int neuron, float[] inputs, int layer)

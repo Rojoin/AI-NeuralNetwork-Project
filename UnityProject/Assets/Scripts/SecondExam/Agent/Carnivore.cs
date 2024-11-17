@@ -214,6 +214,16 @@ public class Carnivore : SporeAgent<CarnivoreStates, CarnivoreFlags>
         }
     }
 
+    public override void PreUpdate(float deltaTime)
+    {
+        Vector2 nearestFoodPosition = GetNearFoodPos();
+
+        mainBrain.inputs = new[] { position.X, position.Y, nearestFoodPosition.X, nearestFoodPosition.Y, hasEatenEnoughFood ? 1 : -1, };
+        moveBrain.inputs = new []{ position.X, position.Y, nearestFoodPosition.X, nearestFoodPosition.Y};
+        eatBrain.inputs = new []{ position.X, position.Y, nearestFoodPosition.X, nearestFoodPosition.Y,hasEatenEnoughFood ? 1 : -1};
+        
+    }
+
     public override void Update(float deltaTime)
     {
         DecideState(mainBrain.outputs);

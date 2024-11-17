@@ -34,13 +34,7 @@ public class SimulationSettings
     }
 }
 
-public enum AgentType
-{
-    None,
-    Herbivore,
-    Carnivore,
-    Scavenger
-}
+
 
 public class AgentManager
 {

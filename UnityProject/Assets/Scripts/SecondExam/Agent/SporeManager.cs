@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using RojoinSaveSystem;
 using RojoinSaveSystem.Attributes;
+using UnityEngine;
 
 namespace Miner.SecondExam.Agent
 {
@@ -15,30 +16,35 @@ namespace Miner.SecondExam.Agent
         [SaveValue(7)] public int EliteCount = 4;
         [SaveValue(8)] public float MutationChance = 0.10f;
         [SaveValue(9)] public float MutationRate = 0.01f;
+        public float GenerationDuration = 20.0f;
+
 
         private List<Herbivore> herbis = new List<Herbivore>();
         private List<Carnivore> carnivores = new List<Carnivore>();
         private List<Scavenger> scavengers = new List<Scavenger>();
+        
+        private List<Brain> herbMainBrains = new List<Brain>();
+        private List<Brain> herbEatBrains = new List<Brain>();
+        private List<Brain> herbMoveBrains = new List<Brain>();
+        private List<Brain> herbEscapeBrains = new List<Brain>();
+        private List<Brain> carnMainBrains = new List<Brain>();
+        private List<Brain> carnMoveBrains = new List<Brain>();
+        private List<Brain> carnEatBrains = new List<Brain>();
+        private List<Brain> scavMainBrains = new List<Brain>();
+        private List<Brain> scavFlokingBrains = new List<Brain>();
         private bool isActive;
         private Dictionary<uint, Brain> entities;
 
         public SporeManager()
         {
-            for (int i = 0; i < hervivoreCount; i++)
-            {
-                herbis.Add(new Herbivore());
-            }
+            CreateBrains();
+            ECSManager.Init();
+            entities = new Dictionary<uint, Brain>();
+            InitEntities();
+        }
 
-            for (int i = 0; i < carnivoreCount; i++)
-            {
-                carnivores.Add(new Carnivore());
-            }
-
-            for (int i = 0; i < scavengerCount; i++)
-            {
-                scavengers.Add(new Scavenger());
-            }
-
+        private void InitEntities()
+        {
             for (int i = 0; i < hervivoreCount; i++)
             {
                 CreateEntity(herbis[i].mainBrain);
@@ -59,10 +65,36 @@ namespace Miner.SecondExam.Agent
                 CreateEntity(scavengers[i].mainBrain);
                 CreateEntity(scavengers[i].flockingBrain);
             }
-            
         }
 
-        private static void CreateEntity(Brain brain)
+        private void CreateBrains()
+        {
+            for (int i = 0; i < hervivoreCount; i++)
+            {
+                herbis.Add(new Herbivore());
+                herbMainBrains.Add(herbis[i].mainBrain);
+                herbEatBrains.Add(herbis[i].eatBrain);
+                herbEscapeBrains.Add(herbis[i].escapeBrain);
+                herbMoveBrains.Add(herbis[i].moveBrain);
+            }
+
+            for (int i = 0; i < carnivoreCount; i++)
+            {
+                carnivores.Add(new Carnivore());
+                carnMainBrains.Add(carnivores[i].mainBrain);
+                carnEatBrains.Add(carnivores[i].eatBrain);
+                carnMoveBrains.Add(carnivores[i].moveBrain);
+            }
+
+            for (int i = 0; i < scavengerCount; i++)
+            {
+                scavengers.Add(new Scavenger());
+                scavMainBrains.Add(scavengers[i].mainBrain);
+                scavFlokingBrains.Add(scavengers[i].flockingBrain);
+            }
+        }
+
+        private void CreateEntity(Brain brain)
         {
             uint entityID = ECSManager.CreateEntity();
             ECSManager.AddComponent<BiasComponent>(entityID, new BiasComponent(brain.bias));
@@ -72,11 +104,137 @@ namespace Miner.SecondExam.Agent
             ECSManager.AddComponent<OutputLayerComponent>(entityID, new OutputLayerComponent(brain.GetOutputLayer()));
             ECSManager.AddComponent<OutputComponent>(entityID, new OutputComponent(brain.outputs));
             ECSManager.AddComponent<InputComponent>(entityID, new InputComponent(brain.inputs));
+            entities.Add(entityID, brain);
+        }
+
+        public void EpochAllBrains()
+        {
+            
+        }
+        public Genome[] Epoch(Genome[] oldGenomes)
+        {
+            float totalFitness = 0;
+            List<Genome> population = new List<Genome>();
+            List<Genome> newPopulation = new List<Genome>();
+
+            population.AddRange(oldGenomes);
+
+            foreach (Genome g in population)
+            {
+                totalFitness += g.fitness;
+            }
+
+            int eliteCount = 5;
+            for (int i = 0; i < eliteCount && newPopulation.Count < population.Count; i++)
+            {
+                newPopulation.Add(population[i]);
+            }
+
+            return newPopulation.ToArray();
+        }
+
+        public Genome RouletteSelection(float totalFitness, List<Genome> population)
+        {
+            float rnd = Random.Range(0, Mathf.Max(totalFitness, 0));
+
+            float fitness = 0;
+
+            for (int i = 0; i < population.Count; i++)
+            {
+                fitness += Mathf.Max(population[i].fitness, 0);
+                if (fitness >= rnd)
+                    return population[i];
+            }
+
+            return null;
+        }
+
+
+        void Crossover(List<Genome> oldPopulation, List<Genome> newPopulation, float totalFitness, float mutationRate,
+            float mutationChance)
+        {
+            Genome mom = RouletteSelection(totalFitness, oldPopulation);
+            Genome dad = RouletteSelection(totalFitness, oldPopulation);
+
+            Genome child1;
+            Genome child2;
+
+            Crossover(mom, dad, mutationChance, mutationRate, out child1, out child2);
+
+            newPopulation.Add(child1);
+            newPopulation.Add(child2);
+        }
+
+        void Crossover(Genome mom, Genome dad, float mutationChance, float mutationRate, out Genome child1,
+            out Genome child2)
+        {
+            child1 = new Genome();
+            child2 = new Genome();
+
+            child1.genome = new float[mom.genome.Length];
+            child2.genome = new float[mom.genome.Length];
+
+            int pivot = Random.Range(0, mom.genome.Length);
+
+            for (int i = 0; i < pivot; i++)
+            {
+                child1.genome[i] = mom.genome[i];
+
+                if (ShouldMutate(mutationChance))
+                    child1.genome[i] += Random.Range(-mutationRate, mutationRate);
+
+                child2.genome[i] = dad.genome[i];
+
+                if (ShouldMutate(mutationChance))
+                    child2.genome[i] += Random.Range(-mutationRate, mutationRate);
+            }
+
+            for (int i = pivot; i < mom.genome.Length; i++)
+            {
+                child2.genome[i] = mom.genome[i];
+
+                if (ShouldMutate(mutationChance))
+                    child2.genome[i] += Random.Range(-mutationRate, mutationRate);
+
+                child1.genome[i] = dad.genome[i];
+
+                if (ShouldMutate(mutationChance))
+                    child1.genome[i] += Random.Range(-mutationRate, mutationRate);
+            }
+        }
+
+        bool ShouldMutate(float mutationChance)
+        {
+            return Random.Range(0.0f, 1.0f) < mutationChance;
+        }
+
+        int HandleComparison(Genome x, Genome y)
+        {
+            return x.fitness > y.fitness ? 1 : x.fitness < y.fitness ? -1 : 0;
         }
 
         public void Tick(float deltaTime)
         {
+            UpdateInputs();
             ECSManager.Tick(deltaTime);
+        }
+
+        private void UpdateInputs()
+        {
+            foreach (KeyValuePair<uint, Brain> entity in entities)
+            {
+                InputComponent inputComponent = ECSManager.GetComponent<InputComponent>(entity.Key);
+                inputComponent.inputs = entity.Value.inputs;
+            }
+        }
+
+        public void AfterTick(float deltaTime = 0)
+        {
+            foreach (KeyValuePair<uint, Brain> entity in entities)
+            {
+                OutputComponent output = ECSManager.GetComponent<OutputComponent>(entity.Key);
+                entity.Value.outputs = output.outputs;
+            }
         }
 
         public int GetID()

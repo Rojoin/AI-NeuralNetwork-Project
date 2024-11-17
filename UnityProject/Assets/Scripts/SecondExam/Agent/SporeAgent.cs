@@ -81,6 +81,7 @@ namespace Miner.SecondExam.Agent
         }
 
         public abstract void DecideState(float[] outputs);
+        public abstract void PreUpdate(float deltaTime);
         public abstract void Update(float deltaTime);
         public abstract void MoveTo(Vector2 dir);
     }
