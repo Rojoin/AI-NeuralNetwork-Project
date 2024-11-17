@@ -3,7 +3,7 @@ using System.Collections;
 
 public class NeuronLayer
 {
-	private Neuron[] neurons;
+	public Neuron[] neurons;
 	private float[] outputs;
 	private int totalWeights = 0;
 	public int inputsCount = 0;
@@ -85,4 +85,6 @@ public class NeuronLayer
 
 		return outputs;
 	}
+
+
 }

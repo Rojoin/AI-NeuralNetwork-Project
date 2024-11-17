@@ -85,7 +85,7 @@ public class BrainSystem : ECSSystem
         var bag = new ConcurrentBag<float>();
         float a = 0;
         Parallel.For(0, inputLayerComponents.Count,
-            k => { bag.Add(hiddenLayerComponents[entity].hiddenLayers[layer].weights[neuron][k] * inputs[k]); });
+            k => { bag.Add(hiddenLayerComponents[entity].hiddenLayers[layer].weights[neuron,k] * inputs[k]); });
         a = bag.Sum();
         a += biasComponents[entity].X;
 
@@ -97,7 +97,7 @@ public class BrainSystem : ECSSystem
         var bag = new ConcurrentBag<float>();
         float a = 0;
         Parallel.For(0, inputs.Length,
-            k => { bag.Add(inputLayerComponents[entity].layer.weights[neuron][k] * inputs[k]); });
+            k => { bag.Add(inputLayerComponents[entity].layer.weights[neuron,k] * inputs[k]); });
         a = bag.Sum();
         a += biasComponents[entity].X;
 
@@ -109,7 +109,7 @@ public class BrainSystem : ECSSystem
         var bag = new ConcurrentBag<float>();
         float a = 0;
         Parallel.For(0, inputs.Length,
-            k => { bag.Add(outputsLayerComponents[entity].layer.weights[neuron][k] * inputs[k]); });
+            k => { bag.Add(outputsLayerComponents[entity].layer.weights[neuron,k] * inputs[k]); });
         a = bag.Sum();
         a += biasComponents[entity].X;
 

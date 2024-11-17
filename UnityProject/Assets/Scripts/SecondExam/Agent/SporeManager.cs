@@ -67,9 +67,9 @@ namespace Miner.SecondExam.Agent
             uint entityID = ECSManager.CreateEntity();
             ECSManager.AddComponent<BiasComponent>(entityID, new BiasComponent(brain.bias));
             ECSManager.AddComponent<SigmoidComponent>(entityID, new SigmoidComponent(brain.p));
-            ECSManager.AddComponent<InputLayerComponent>(entityID, new InputLayerComponent(null));
-            ECSManager.AddComponent<HiddenLayerComponent>(entityID, new HiddenLayerComponent(null));
-            ECSManager.AddComponent<OutputLayerComponent>(entityID, new OutputLayerComponent(null));
+            ECSManager.AddComponent<InputLayerComponent>(entityID, new InputLayerComponent(brain.GetInputLayer()));
+            ECSManager.AddComponent<HiddenLayerComponent>(entityID, new HiddenLayerComponent(brain.GetHiddenLayer()));
+            ECSManager.AddComponent<OutputLayerComponent>(entityID, new OutputLayerComponent(brain.GetOutputLayer()));
             ECSManager.AddComponent<OutputComponent>(entityID, new OutputComponent(brain.outputs));
             ECSManager.AddComponent<InputComponent>(entityID, new InputComponent(brain.inputs));
         }

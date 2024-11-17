@@ -5,9 +5,9 @@
 public class Layer
 {
     public int neuronCount;
-    public float[][] weights;
+    public float[,] weights;
 
-    public Layer(int neuronCount, float[][] weights)
+    public Layer(int neuronCount, float[,] weights)
     {
         this.neuronCount = neuronCount;
         this.weights = weights;
