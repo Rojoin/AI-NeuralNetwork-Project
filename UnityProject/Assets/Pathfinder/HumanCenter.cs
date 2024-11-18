@@ -66,7 +66,7 @@ public abstract class HumanCenter<NodeType, Coordinate> : HumanCenterBase, IPlac
 
     public List<NodeType> GetNewDestination(ITraveler traveler, NodeType currentPosition, Vector2 position)
     {
-        //Todo:Change to grab vornoid GoldMine
+
         foreach (ThiessenPolygon2D<SegmentVec2, Vector2> poli in diagram.GetPoly)
         {
             if (poli.IsInside(position))

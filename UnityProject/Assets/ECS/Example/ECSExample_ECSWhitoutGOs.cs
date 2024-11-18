@@ -14,7 +14,7 @@ public class ECSExample_ECSWhitoutGOs : MonoBehaviour
     private Vector3 prefabScale;
 
     private List<uint> entities;
-//Todo: Change Flocking to ECS
+
     void Start()
     {
         ECSManager.Init();

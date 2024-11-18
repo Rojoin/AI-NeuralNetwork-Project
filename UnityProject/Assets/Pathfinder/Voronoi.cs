@@ -163,7 +163,7 @@ public class Voronoi<NodeType, Coordinate> where NodeType : INode<Coordinate>
         for (int i = 0; i < voronoiPolygons[center].Count; i++)
         {
             Segments<Vector2> segments = voronoiPolygons[center][i];
-            //TOdo:Change so the Polygons are created correctly
+           
 
 
             Vector2 inter = INVALID_VALUE;

@@ -3,7 +3,7 @@ using UnityEngine;
 
 [Serializable]
 public class SegmentLimit
-{//TOdo: change to be generic.
+{
     [SerializeField] private Transform origin;
     [SerializeField] private Transform final;
     [SerializeField] private DirectionLimit directionLimit = DirectionLimit.None;

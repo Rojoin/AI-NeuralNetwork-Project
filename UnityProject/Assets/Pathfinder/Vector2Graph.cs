@@ -243,7 +243,7 @@ public class Vector2Graph<NodeType> : IGraph<Node<Vector2>, UnityEngine.Vector2>
 
     public Vector2 GetMediatrix(Node<Vector2> a, Node<Vector2> b)
     {
-        //TODO: Make Mediatrix
+        
         Vector2 perp = b.GetCoordinate() - a.GetCoordinate();
         Vector2 perpendicular = new Vector2(-perp.y, perp.x);
         //return GetEuclideanDistance(a, b) + perpendicular *0.5f;

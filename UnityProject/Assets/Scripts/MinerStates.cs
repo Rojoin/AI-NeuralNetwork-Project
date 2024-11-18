@@ -204,7 +204,7 @@ namespace Miner
         private float timer = 0;
         private IPlace place;
 
-//Todo: Add Alarm Interaction.
+
         public override BehaviourActions GetTickBehaviours(params object[] parameters)
         {
             food = (int)parameters[0];

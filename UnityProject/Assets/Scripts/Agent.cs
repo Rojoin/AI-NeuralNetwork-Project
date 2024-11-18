@@ -67,7 +67,7 @@ public class Agent : MonoBehaviour, ITraveler ,IFlock,IAlarmable
         boid.parent = transform;
         PathFinderManager<Node<Vector2>, Vector2>.graph = grafp.graph;
         //path = Pathfinder.FindPath(startNode, destinationNode, grafp.graph, this);
-        //Todo: Make a way to give the current place for the first time
+
         currentNode = startNode;
         fsm = new FSM<MinerStates, MinerFlags>();
 
