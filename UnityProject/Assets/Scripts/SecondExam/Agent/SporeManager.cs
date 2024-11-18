@@ -2,6 +2,7 @@
 using RojoinSaveSystem;
 using RojoinSaveSystem.Attributes;
 using UnityEngine;
+using Vector2 = System.Numerics.Vector2;
 
 namespace Miner.SecondExam.Agent
 {
@@ -20,6 +21,7 @@ namespace Miner.SecondExam.Agent
         private int currentTurn = 0;
 
         private List<Herbivore> herbis = new List<Herbivore>();
+        private List<Plant> plants = new List<Plant>();
         private List<Carnivore> carnivores = new List<Carnivore>();
         private List<Scavenger> scavengers = new List<Scavenger>();
 
@@ -96,7 +98,7 @@ namespace Miner.SecondExam.Agent
         {
             for (int i = 0; i < hervivoreCount; i++)
             {
-                herbis.Add(new Herbivore());
+                herbis.Add(new Herbivore(this));
                 herbMainBrains.Add(herbis[i].mainBrain);
                 herbEatBrains.Add(herbis[i].eatBrain);
                 herbEscapeBrains.Add(herbis[i].escapeBrain);
@@ -105,7 +107,7 @@ namespace Miner.SecondExam.Agent
 
             for (int i = 0; i < carnivoreCount; i++)
             {
-                carnivores.Add(new Carnivore());
+                carnivores.Add(new Carnivore(this));
                 carnMainBrains.Add(carnivores[i].mainBrain);
                 carnEatBrains.Add(carnivores[i].eatBrain);
                 carnMoveBrains.Add(carnivores[i].moveBrain);
@@ -113,7 +115,7 @@ namespace Miner.SecondExam.Agent
 
             for (int i = 0; i < scavengerCount; i++)
             {
-                scavengers.Add(new Scavenger());
+                scavengers.Add(new Scavenger(this));
                 scavMainBrains.Add(scavengers[i].mainBrain);
                 scavFlokingBrains.Add(scavengers[i].flockingBrain);
             }
@@ -159,6 +161,7 @@ namespace Miner.SecondExam.Agent
                     scavFlockingBrain.Add(scav.flockingBrain);
                 }
             }
+
             EpochLocal(scavMainBrain);
             EpochLocal(scavFlockingBrain);
         }
@@ -404,6 +407,45 @@ namespace Miner.SecondExam.Agent
 
         public void Save()
         {
+        }
+
+        public Herbivore GetNearHerbivore(Vector2 position)
+        {
+            Herbivore nearest = herbis[0];
+            float distance = (position.X * nearest.position.X) + (position.Y * nearest.position.Y);
+
+            foreach (Herbivore go in herbis)
+            {
+                float newDist = (go.position.X * position.X) + (go.position.Y * position.Y);
+                if (newDist < distance)
+                {
+                    nearest = go;
+                    distance = newDist;
+                }
+            }
+
+            return nearest;
+        }
+
+        public Plant GetNearPlant(Vector2 position)
+        {
+            Plant nearest = plants[0];
+            float distance = (position.X * nearest.position.X) + (position.Y * nearest.position.Y);
+
+            foreach (Plant go in plants)
+            {
+                if (go.isAvailable)
+                {
+                    float newDist = (go.position.X * position.X) + (go.position.Y * position.Y);
+                    if (newDist < distance)
+                    {
+                        nearest = go;
+                        distance = newDist;
+                    }
+                }
+            }
+
+            return nearest;
         }
     }
 }

@@ -94,7 +94,7 @@ public class Scavenger : SporeAgent<ScavengerStates, ScavengerFlags>
     protected Vector2 dir;
     protected float speed;
 
-    public Scavenger()
+    public Scavenger(SporeManager populationManager) : base(populationManager) 
     {
         mainBrain = new Brain();
         minEatRadius = 4f;
@@ -116,7 +116,7 @@ public class Scavenger : SporeAgent<ScavengerStates, ScavengerFlags>
 
     public override void DecideState(float[] outputs)
     {
-        throw new NotImplementedException();
+
     }
 
     public override void PreUpdate(float deltaTime)
@@ -140,12 +140,12 @@ public class Scavenger : SporeAgent<ScavengerStates, ScavengerFlags>
 
     public Vector2 GetNearFoodPos()
     {
-        throw new NotImplementedException();
+        return GetNearHerbivore().position;
     }
 
     public Herbivore GetNearHerbivore()
     {
-        throw new NotImplementedException();
+        return populationManager.GetNearHerbivore(position);
     }
 
     public override void MoveTo(Vector2 dir)

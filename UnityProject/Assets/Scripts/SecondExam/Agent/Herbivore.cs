@@ -346,7 +346,7 @@ namespace Miner.SecondExam.Agent
         public Brain escapeBrain = new Brain();
         public Brain eatBrain = new Brain();
 
-        public Herbivore()
+        public Herbivore(SporeManager populationManager) : base(populationManager)
         {
             Action<Vector2> onMove;
             Action<bool> onEatenFood;
@@ -464,19 +464,19 @@ namespace Miner.SecondExam.Agent
 
         public Plant GetNearestFood()
         {
-            throw new NotImplementedException();
+           return populationManager.GetNearPlant(position);
         }
 
         public Vector2 GetNearestFoodPosition()
         {
-            throw new NotImplementedException();
+            return GetNearestFood().position;
         }
     }
 
     public class Plant : SporeAgent
     {
         private int lives = 5;
-        private bool isAvailable = true;
+        public bool isAvailable = true;
 
         public void Eat()
         {

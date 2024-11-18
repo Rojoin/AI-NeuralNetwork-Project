@@ -167,7 +167,7 @@ public class Carnivore : SporeAgent<CarnivoreStates, CarnivoreFlags>
     int maxEating = 3;
     public bool hasEatenEnoughFood = false;
 
-    public Carnivore()
+    public Carnivore(SporeManager populationManager) : base(populationManager)
     {
         Action<bool> onHasEantenEnoughFood;
         Action<Vector2> onMove;
@@ -195,11 +195,9 @@ public class Carnivore : SporeAgent<CarnivoreStates, CarnivoreFlags>
                     GetNearHerbivore()
                 };
             });
-        //TODO: Add transitions
-        fsm.SetTransition(CarnivoreStates.Eat,CarnivoreFlags.ToMove ,CarnivoreStates.Move);
-        fsm.SetTransition(CarnivoreStates.Move,CarnivoreFlags.ToEat ,CarnivoreStates.Eat);
+        fsm.SetTransition(CarnivoreStates.Eat, CarnivoreFlags.ToMove, CarnivoreStates.Move);
+        fsm.SetTransition(CarnivoreStates.Move, CarnivoreFlags.ToEat, CarnivoreStates.Eat);
         fsm.ForceState(CarnivoreStates.Move);
-        
     }
 
     public override void DecideState(float[] outputs)
@@ -218,10 +216,11 @@ public class Carnivore : SporeAgent<CarnivoreStates, CarnivoreFlags>
     {
         Vector2 nearestFoodPosition = GetNearFoodPos();
 
-        mainBrain.inputs = new[] { position.X, position.Y, nearestFoodPosition.X, nearestFoodPosition.Y, hasEatenEnoughFood ? 1 : -1, };
-        moveBrain.inputs = new []{ position.X, position.Y, nearestFoodPosition.X, nearestFoodPosition.Y};
-        eatBrain.inputs = new []{ position.X, position.Y, nearestFoodPosition.X, nearestFoodPosition.Y,hasEatenEnoughFood ? 1 : -1};
-        
+        mainBrain.inputs = new[]
+            { position.X, position.Y, nearestFoodPosition.X, nearestFoodPosition.Y, hasEatenEnoughFood ? 1 : -1, };
+        moveBrain.inputs = new[] { position.X, position.Y, nearestFoodPosition.X, nearestFoodPosition.Y };
+        eatBrain.inputs = new[]
+            { position.X, position.Y, nearestFoodPosition.X, nearestFoodPosition.Y, hasEatenEnoughFood ? 1 : -1 };
     }
 
     public override void Update(float deltaTime)
@@ -232,12 +231,12 @@ public class Carnivore : SporeAgent<CarnivoreStates, CarnivoreFlags>
 
     public Vector2 GetNearFoodPos()
     {
-        throw new NotImplementedException();
+        return populationManager.GetNearHerbivore(position).position;
     }
 
     public Herbivore GetNearHerbivore()
     {
-        throw new NotImplementedException();
+        return populationManager.GetNearHerbivore(position);
     }
 
     public override void MoveTo(Vector2 dir)

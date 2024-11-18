@@ -66,18 +66,19 @@ namespace Miner.SecondExam.Agent
 
     public abstract class SporeAgent
     {
-        
+        public Vector2 position;
     }
     public abstract class SporeAgent<AgentStates,AgentFlags>: SporeAgent where AgentStates :Enum  where AgentFlags : Enum 
     {
+        protected SporeManager populationManager;
         public Brain mainBrain;
-        protected Vector2 position;
         public bool hasEaten = false;
         protected bool isActive;
-    protected FSM<AgentStates, AgentFlags> fsm;
-        public SporeAgent()
+        protected FSM<AgentStates, AgentFlags> fsm;
+        public SporeAgent(SporeManager populationManager)
         {
             fsm = new FSM<AgentStates, AgentFlags>();
+            this.populationManager = populationManager;
         }
 
         public abstract void DecideState(float[] outputs);
