@@ -165,7 +165,7 @@ public class Carnivore : SporeAgent<CarnivoreStates, CarnivoreFlags>
     public Brain eatBrain;
     int counterEating = 0;
     int maxEating = 3;
-    bool hasEatenEnoughFood = false;
+    public bool hasEatenEnoughFood = false;
 
     public Carnivore()
     {

@@ -336,11 +336,11 @@ namespace Miner.SecondExam.Agent
     {
         List<Vector2> nearEnemy = new List<Vector2>();
         List<Vector2> nearFood = new List<Vector2>();
-        private int lives = 3;
+        public int lives = 3;
         private int livesUntilCountdownDissapears = 30;
         private int maxFood = 5;
         int currentFood = 0;
-        bool hasEatenFood = false;
+        public bool hasEatenFood = false;
         private int maxMovementPerTurn = 3;
         public Brain moveBrain = new Brain();
         public Brain escapeBrain = new Brain();

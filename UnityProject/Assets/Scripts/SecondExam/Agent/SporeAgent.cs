@@ -72,7 +72,7 @@ namespace Miner.SecondExam.Agent
     {
         public Brain mainBrain;
         protected Vector2 position;
-        protected bool hasEaten = false;
+        public bool hasEaten = false;
         protected bool isActive;
     protected FSM<AgentStates, AgentFlags> fsm;
         public SporeAgent()

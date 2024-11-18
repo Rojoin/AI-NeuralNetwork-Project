@@ -16,8 +16,8 @@ namespace Miner.SecondExam.Agent
         [SaveValue(7)] public int EliteCount = 4;
         [SaveValue(8)] public float MutationChance = 0.10f;
         [SaveValue(9)] public float MutationRate = 0.01f;
-        public float GenerationDuration = 20.0f;
-
+        public int turnCount = 100;
+        private int currentTurn = 0;
 
         private List<Herbivore> herbis = new List<Herbivore>();
         private List<Carnivore> carnivores = new List<Carnivore>();
@@ -41,6 +41,31 @@ namespace Miner.SecondExam.Agent
             ECSManager.Init();
             entities = new Dictionary<uint, Brain>();
             InitEntities();
+        }
+
+        public void Tick(float deltaTime)
+        {
+            if (!isActive)
+                return;
+            if (currentTurn < turnCount)
+            {
+                PreUpdateAgents(deltaTime);
+                UpdateInputs();
+                ECSManager.Tick(deltaTime);
+                AfterTick(deltaTime);
+                currentTurn++;
+            }
+            else
+            {
+                EpochAllBrains();
+                isActive = false;
+                CreateNewGeneration();
+            }
+        }
+
+        private void CreateNewGeneration()
+        {
+            throw new System.NotImplementedException();
         }
 
         private void InitEntities()
@@ -107,33 +132,88 @@ namespace Miner.SecondExam.Agent
             entities.Add(entityID, brain);
         }
 
-        public void EpochAllBrains()
+        #region Epoch
+
+        private void EpochAllBrains()
         {
-            Epoch(herbMainBrains);
-            Epoch(herbMoveBrains);
-            Epoch(herbEatBrains);
-            Epoch(herbEscapeBrains);
-            Epoch(carnMainBrains);
-            Epoch(carnEatBrains);
-            Epoch(carnMoveBrains);
-            Epoch(scavMainBrains);
-            Epoch(scavFlokingBrains);
+            EpochHerbivore();
+            EpochCarnivore();
+            EpochScavenger();
 
             foreach (KeyValuePair<uint, Brain> entity in entities)
             {
                 HiddenLayerComponent inputComponent = ECSManager.GetComponent<HiddenLayerComponent>(entity.Key);
                 inputComponent.hiddenLayers = entity.Value.GetHiddenLayers();
             }
+        }
 
-            void Epoch(List<Brain> brains)
+        private void EpochScavenger()
+        {
+            List<Brain> scavMainBrain = new List<Brain>();
+            List<Brain> scavFlockingBrain = new List<Brain>();
+            foreach (var scav in scavengers)
             {
-                Genome[] newGenomes = this.Epoch(GetGenomes(brains));
-
-                for (int i = 0; i < brains.Count; i++)
+                if (scav.hasEaten)
                 {
-                    Brain brain = brains[i];
-                    brain.SetWeights(newGenomes[i].genome);
+                    scavMainBrain.Add(scav.mainBrain);
+                    scavFlockingBrain.Add(scav.flockingBrain);
                 }
+            }
+            EpochLocal(scavMainBrain);
+            EpochLocal(scavFlockingBrain);
+        }
+
+        void EpochCarnivore()
+        {
+            List<Brain> carnivoreMainBrain = new List<Brain>();
+            List<Brain> carnivoreEatBrain = new List<Brain>();
+            List<Brain> carnivoreMoveBrain = new List<Brain>();
+            foreach (var carnivore in carnivores)
+            {
+                if (carnivore.hasEatenEnoughFood)
+                {
+                    carnivoreMainBrain.Add(carnivore.mainBrain);
+                    carnivoreEatBrain.Add(carnivore.eatBrain);
+                    carnivoreMoveBrain.Add(carnivore.moveBrain);
+                }
+            }
+
+            EpochLocal(carnivoreMainBrain);
+            EpochLocal(carnivoreEatBrain);
+            EpochLocal(carnivoreMoveBrain);
+        }
+
+        private void EpochHerbivore()
+        {
+            List<Brain> herbivoresMainBrain = new List<Brain>();
+            List<Brain> herbivoresEscapeBrain = new List<Brain>();
+            List<Brain> herbivoresMoveBrain = new List<Brain>();
+            List<Brain> herbivoresEatBrain = new List<Brain>();
+            foreach (Herbivore herbivore in herbis)
+            {
+                if (herbivore.lives > 0 && herbivore.hasEatenFood)
+                {
+                    herbivoresMainBrain.Add(herbivore.mainBrain);
+                    herbivoresEatBrain.Add(herbivore.eatBrain);
+                    herbivoresMoveBrain.Add(herbivore.moveBrain);
+                    herbivoresEscapeBrain.Add(herbivore.escapeBrain);
+                }
+            }
+
+            EpochLocal(herbivoresMainBrain);
+            EpochLocal(herbivoresMoveBrain);
+            EpochLocal(herbivoresEatBrain);
+            EpochLocal(herbivoresEscapeBrain);
+        }
+
+        private void EpochLocal(List<Brain> brains)
+        {
+            Genome[] newGenomes = this.Epoch(GetGenomes(brains));
+
+            for (int i = 0; i < brains.Count; i++)
+            {
+                Brain brain = brains[i];
+                brain.SetWeights(newGenomes[i].genome);
             }
         }
 
@@ -152,6 +232,7 @@ namespace Miner.SecondExam.Agent
 
             return genomes.ToArray();
         }
+
 
         public Genome[] Epoch(Genome[] oldGenomes)
         {
@@ -190,7 +271,6 @@ namespace Miner.SecondExam.Agent
 
             return null;
         }
-
 
         void Crossover(List<Genome> oldPopulation, List<Genome> newPopulation, float totalFitness, float mutationRate,
             float mutationChance)
@@ -255,13 +335,9 @@ namespace Miner.SecondExam.Agent
             return x.fitness > y.fitness ? 1 : x.fitness < y.fitness ? -1 : 0;
         }
 
-        public void Tick(float deltaTime)
-        {
-            PreUpdateAgents(deltaTime);
-            UpdateInputs();
-            ECSManager.Tick(deltaTime);
-            AfterTick(deltaTime);
-        }
+        #endregion
+
+        #region Updates
 
         private void PreUpdateAgents(float deltaTime)
         {
@@ -297,7 +373,24 @@ namespace Miner.SecondExam.Agent
                 OutputComponent output = ECSManager.GetComponent<OutputComponent>(entity.Key);
                 entity.Value.outputs = output.outputs;
             }
+
+            foreach (Herbivore herbi in herbis)
+            {
+                herbi.Update(deltaTime);
+            }
+
+            foreach (Carnivore carn in carnivores)
+            {
+                carn.Update(deltaTime);
+            }
+
+            foreach (Scavenger scav in scavengers)
+            {
+                scav.Update(deltaTime);
+            }
         }
+
+        #endregion
 
         public int GetID()
         {
