@@ -40,7 +40,6 @@ public class AgentManager
 {
     private BrainData brainData;
     
-    
     public int generation { get; private set; }
 
     public float bestFitness { get; private set; }

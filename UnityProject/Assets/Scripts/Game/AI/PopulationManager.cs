@@ -108,9 +108,9 @@ public class PopulationManager : MonoBehaviour
     public void StartSimulation()
     {
         // Create and confiugre the Genetic Algorithm
-        genAlg = new GeneticAlgorithm(EliteCount, MutationChance, MutationRate);
+        genAlg = new GeneticAlgorithm(EliteCount, MutationChance, MutationRate, brains[0]);
 
-        GenerateInitialPopulation();
+    GenerateInitialPopulation();
         CreateMines();
 
         isRunning = true;

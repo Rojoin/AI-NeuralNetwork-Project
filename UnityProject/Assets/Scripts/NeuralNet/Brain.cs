@@ -5,7 +5,7 @@ using System.Collections.Generic;
 
 public class Brain
 {
-    List<NeuronLayer> layers = new List<NeuronLayer>();
+    public List<NeuronLayer> layers = new List<NeuronLayer>();
     int totalWeightsCount = 0;
     int inputsCount = 0;
     private float fitness = 1;

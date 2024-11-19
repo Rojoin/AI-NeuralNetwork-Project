@@ -35,6 +35,7 @@ public class GeneticAlgorithm
 {
     public List<Genome> population = new List<Genome>();
     List<Genome> newPopulation = new List<Genome>();
+    Brain brain;
 
     float totalFitness;
 
@@ -42,11 +43,12 @@ public class GeneticAlgorithm
     float mutationChance = 0.0f;
     float mutationRate = 0.0f;
 
-    public GeneticAlgorithm(int eliteCount, float mutationChance, float mutationRate)
+    public GeneticAlgorithm(int eliteCount, float mutationChance, float mutationRate, Brain brain)
     {
         this.eliteCount = eliteCount;
         this.mutationChance = mutationChance;
         this.mutationRate = mutationRate;
+        this.brain = brain;
     }
 
     public Genome[] GetRandomGenomes(int count, int genesCount)
@@ -81,7 +83,7 @@ public class GeneticAlgorithm
 
         while (newPopulation.Count < population.Count)
         {
-            Crossover();
+            Crossover(brain);
         }
 
         return newPopulation.ToArray();
@@ -95,7 +97,7 @@ public class GeneticAlgorithm
         }
     }
 
-    void Crossover()
+    void Crossover(Brain brain)
     {
         Genome mom = RouletteSelection();
         Genome dad = RouletteSelection();
@@ -103,13 +105,13 @@ public class GeneticAlgorithm
         Genome child1;
         Genome child2;
 
-        Crossover(mom, dad, out child1, out child2);
+        Crossover(brain,mom, dad, out child1, out child2);
 
         newPopulation.Add(child1);
         newPopulation.Add(child2);
     }
 
-    void Crossover(Genome mom, Genome dad, out Genome child1, out Genome child2)
+    void Crossover(Brain brainStructure, Genome mom, Genome dad, out Genome child1, out Genome child2)
     {
         child1 = new Genome();
         child2 = new Genome();
@@ -132,6 +134,8 @@ public class GeneticAlgorithm
                 child2.genome[i] += Random.Range(-mutationRate, mutationRate);
         }
 
+        EvolveChild(child1, brainStructure);
+
         for (int i = pivot; i < mom.genome.Length; i++)
         {
             child2.genome[i] = mom.genome[i];
@@ -144,6 +148,8 @@ public class GeneticAlgorithm
             if (ShouldMutate())
                 child1.genome[i] += Random.Range(-mutationRate, mutationRate);
         }
+
+        EvolveChild(child2, brainStructure);
     }
 
     bool ShouldMutate()
@@ -156,29 +162,17 @@ public class GeneticAlgorithm
         return x.fitness > y.fitness ? 1 : x.fitness < y.fitness ? -1 : 0;
     }
 
-    void EvolveGeneration()
+    void EvolveChild(Genome child, Brain brain)
     {
-        //ShouldEvolve: Chequear fitness estancando
-        int newNeuronToAddQuantity = 5;
+        int newNeuronToAddQuantity = Random.Range(0, 3);
 
-
-        List<NeuronLayer> neuronLayers = new List<NeuronLayer>();
-        int randomLayer = Random.Range(0, neuronLayers.Count);
-
+        List<NeuronLayer> neuronLayers = brain.layers;
+        int randomLayer = Random.Range(1, neuronLayers.Count - 1);
 
         int neuronPositionToAdd = Random.Range(0, neuronLayers[randomLayer].NeuronsCount);
 
-        //Deberia estar las weights de cada uno
-        int totalWeight = 0;
-        float[] weights = new float[totalWeight];
 
-        foreach (var neuronLayer in neuronLayers)
-        {
-            totalWeight += neuronLayer.NeuronsCount;
-        }
-
-
-        int newNeuronCount = totalWeight + newNeuronToAddQuantity * neuronLayers[randomLayer].InputsCount +
+        int newNeuronCount = child.genome.Length + newNeuronToAddQuantity * neuronLayers[randomLayer].InputsCount +
                              neuronLayers[randomLayer + 1].InputsCount * newNeuronToAddQuantity;
         float[] newWeight = new float[newNeuronCount];
 
@@ -205,33 +199,48 @@ public class GeneticAlgorithm
         //Neurona
 
         int count = 0;
+        int originalNeuronsCount = 0;
 
         int previousLayerInputs = neuronLayers[randomLayer].inputsCount;
+        int afterLayerInputs = neuronLayers[randomLayer + 1].inputsCount;
+        int afterLayerCounter = 0;
+        bool hasCreatedNewConections = false;
 
         while (count < newNeuronCount)
         {
             if (count < neuronPos)
             {
-                newWeight[count] = weights[count];
+                newWeight[count] = child.genome[count];
             }
             else if (count >= neuronPos && count < neuronPos + newNeuronToAddQuantity)
             {
                 newWeight[count] = Random.Range(-1.0f, 1.0f);
             }
-            else
+            else if (!hasCreatedNewConections)
             {
-                if (true)
+                if (afterLayerCounter < afterLayerInputs)
                 {
-                    newWeight[count] = weights[count-newNeuronToAddQuantity];
-                }
-                else if (count < 0)
-                {
-                   
+                    if (originalNeuronsCount < previousLayerInputs)
+                    {
+                        newWeight[count] = child.genome[count - newNeuronToAddQuantity];
+                        originalNeuronsCount++;
+                    }
+                    else if (originalNeuronsCount < previousLayerInputs + newNeuronToAddQuantity)
+                    {
+                        newWeight[count] = Random.Range(-1.0f, 1.0f);
+                        originalNeuronsCount = 0;
+                        afterLayerCounter++;
+                    }
                 }
                 else
                 {
-                    newWeight[count] = Random.Range(-1.0f, 1.0f);
+                    hasCreatedNewConections = true;
                 }
+            }
+            else
+            {
+                newWeight[count] = child.genome[count - newNeuronToAddQuantity -
+                                                ((newNeuronToAddQuantity) * afterLayerCounter)];
             }
 
             count++;
