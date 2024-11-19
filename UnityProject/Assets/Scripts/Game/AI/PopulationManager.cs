@@ -108,10 +108,10 @@ public class PopulationManager : MonoBehaviour
     public void StartSimulation()
     {
         // Create and confiugre the Genetic Algorithm
-        genAlg = new GeneticAlgorithm(EliteCount, MutationChance, MutationRate, brains[0]);
 
     GenerateInitialPopulation();
         CreateMines();
+        genAlg = new GeneticAlgorithm(EliteCount, MutationChance, MutationRate, brains[0]);
 
         isRunning = true;
     }
@@ -206,12 +206,14 @@ public class PopulationManager : MonoBehaviour
         {
             Brain brain = brains[i];
 
+            brain.CopyStructureFrom(genAlg.brain);
             brain.SetWeights(newGenomes[i].genome);
 
             populationGOs[i].SetBrain(newGenomes[i], brain);
             populationGOs[i].transform.position = GetRandomPos();
             populationGOs[i].transform.rotation = GetRandomRot();
         }
+        genAlg.brain = brains[0];
     }
 
     // Update is called once per frame

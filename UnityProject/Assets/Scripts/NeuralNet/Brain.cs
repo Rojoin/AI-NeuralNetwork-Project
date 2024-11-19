@@ -2,7 +2,7 @@
 using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
-
+[System.Serializable]
 public class Brain
 {
     public List<NeuronLayer> layers = new List<NeuronLayer>();
@@ -27,6 +27,10 @@ public class Brain
     {
     }
 
+    public void CopyStructureFrom(Brain brain)
+    {
+        layers = brain.layers;
+    }
     public void ApplyFitness()
     {
         fitness *= FitnessReward * FitnessMultiplier > 0 ? FitnessMultiplier : 0;

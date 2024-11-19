@@ -67,6 +67,7 @@ namespace Miner.SecondExam.Agent
 
         private void CreateNewGeneration()
         {
+            
             throw new System.NotImplementedException();
         }
 
