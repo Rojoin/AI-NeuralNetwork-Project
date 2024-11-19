@@ -36,7 +36,7 @@ public class GeneticAlgorithm
     public List<Genome> population = new List<Genome>();
     List<Genome> newPopulation = new List<Genome>();
     Brain brain;
-
+    public bool shouldEvolve = true;
     float totalFitness;
 
     int eliteCount = 0;
@@ -81,9 +81,10 @@ public class GeneticAlgorithm
 
         SelectElite();
 
+        int randomLayer = Random.Range(1, brain.layers.Count - 1);
         while (newPopulation.Count < population.Count)
         {
-            Crossover(brain);
+            Crossover(brain, randomLayer, shouldEvolve);
         }
 
         return newPopulation.ToArray();
@@ -97,7 +98,7 @@ public class GeneticAlgorithm
         }
     }
 
-    void Crossover(Brain brain)
+    void Crossover(Brain brain, int layer, bool shouldEvolve)
     {
         Genome mom = RouletteSelection();
         Genome dad = RouletteSelection();
@@ -105,13 +106,14 @@ public class GeneticAlgorithm
         Genome child1;
         Genome child2;
 
-        Crossover(brain,mom, dad, out child1, out child2);
+        Crossover(brain, layer, shouldEvolve, mom, dad, out child1, out child2);
 
         newPopulation.Add(child1);
         newPopulation.Add(child2);
     }
 
-    void Crossover(Brain brainStructure, Genome mom, Genome dad, out Genome child1, out Genome child2)
+    void Crossover(Brain brainStructure, int layer, bool shouldEvolve, Genome mom, Genome dad, out Genome child1,
+        out Genome child2)
     {
         child1 = new Genome();
         child2 = new Genome();
@@ -134,7 +136,6 @@ public class GeneticAlgorithm
                 child2.genome[i] += Random.Range(-mutationRate, mutationRate);
         }
 
-        EvolveChild(child1, brainStructure);
 
         for (int i = pivot; i < mom.genome.Length; i++)
         {
@@ -149,7 +150,11 @@ public class GeneticAlgorithm
                 child1.genome[i] += Random.Range(-mutationRate, mutationRate);
         }
 
-        EvolveChild(child2, brainStructure);
+        if (shouldEvolve)
+        {
+            EvolveChild(child1, brainStructure, layer);
+            EvolveChild(child2, brainStructure, layer);
+        }
     }
 
     bool ShouldMutate()
@@ -162,15 +167,14 @@ public class GeneticAlgorithm
         return x.fitness > y.fitness ? 1 : x.fitness < y.fitness ? -1 : 0;
     }
 
-    void EvolveChild(Genome child, Brain brain)
+    void EvolveChild(Genome child, Brain brain, int randomLayer)
     {
         int newNeuronToAddQuantity = Random.Range(0, 3);
 
         List<NeuronLayer> neuronLayers = brain.layers;
-        int randomLayer = Random.Range(1, neuronLayers.Count - 1);
+
 
         int neuronPositionToAdd = Random.Range(0, neuronLayers[randomLayer].NeuronsCount);
-
 
         int newNeuronCount = child.genome.Length + newNeuronToAddQuantity * neuronLayers[randomLayer].InputsCount +
                              neuronLayers[randomLayer + 1].InputsCount * newNeuronToAddQuantity;
