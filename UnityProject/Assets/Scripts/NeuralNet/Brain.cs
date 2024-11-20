@@ -78,6 +78,30 @@ public class Brain
         return true;
     }
 
+    public bool AddNeuronLayerAtPosition(int inputsCount, int neuronsCount,int layerPosition)
+    {
+        if (layers.Count > 0 && layers[layerPosition].OutputsCount != inputsCount)
+        {
+            Debug.LogError("Inputs Count must match outputs from previous layer.");
+            return false;
+        }
+
+        NeuronLayer layer = new NeuronLayer(inputsCount, neuronsCount, bias, p);
+        
+        totalWeightsCount -= layers[layerPosition].InputsCount * layers[layerPosition + 1].OutputsCount;
+        
+        totalWeightsCount += layers[layerPosition + 1].OutputsCount * neuronsCount;
+        layers[layerPosition+1] = new NeuronLayer(neuronsCount, layers[layerPosition+1].NeuronsCount, bias, p);
+        
+        
+        totalWeightsCount += layers[layerPosition].InputsCount * neuronsCount;
+        Debug.Log($"The new totalWeight is{totalWeightsCount}");
+        layers.Insert(layerPosition+1,layer);
+        Debug.Log($"The weight is{GetWeightsCount()}");
+
+        return true;
+    }
+
     public int GetTotalWeightsCount()
     {
         return totalWeightsCount;
@@ -111,7 +135,21 @@ public class Brain
 
         return weights;
     }
+    public int GetWeightsCount()
+    {
+        int id = 0;
+        for (int i = 0; i < layers.Count; i++)
+        {
+            float[] ws = layers[i].GetWeights();
 
+            for (int j = 0; j < ws.Length; j++)
+            {
+                id++;
+            }
+        }
+
+        return id;
+    }
     public float[] Synapsis(float[] inputs)
     {
         float[] outputs = null;

@@ -5952,6 +5952,15 @@ MonoBehaviour:
   P: 0.5
   genAlg:
     population: []
+    brain:
+      layers: []
+      FitnessReward: 0
+      FitnessMultiplier: 0
+      outputs: []
+      bias: 1
+      p: 0.5
+      inputs: []
+    shouldEvolve: 1
 --- !u!4 &1690210759
 Transform:
   m_ObjectHideFlags: 0
@@ -5983,12 +5992,13 @@ MonoBehaviour:
     gridSizeX: 48
     gridSizeY: 10
     turnCount: 100
-    PopulationCount: 40
+    herbivorePopulationCount: 40
+    carnivorePopulationCount: 40
+    scavengerPopulationCount: 40
     GenerationDuration: 20
     EliteCount: 4
     MutationChance: 0.1
     MutationRate: 0.01
-    TESTVARIABLEARRAY: 450000009a020000
   pathToSave: /Saves/Genomes
   extension: genome
 --- !u!1 &1703906446
