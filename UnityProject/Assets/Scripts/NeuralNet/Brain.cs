@@ -78,25 +78,31 @@ public class Brain
         return true;
     }
 
-    public bool AddNeuronLayerAtPosition(int inputsCount, int neuronsCount,int layerPosition)
+    public bool AddNeuronLayerAtPosition( int neuronsCount, int layerPosition)
     {
-        if (layers.Count > 0 && layers[layerPosition].OutputsCount != inputsCount)
+        if (layers.Count <= 0 || layerPosition >= layers.Count)
         {
-            Debug.LogError("Inputs Count must match outputs from previous layer.");
+            Debug.LogError("No previous Layer or out of range");
             return false;
         }
 
-        NeuronLayer layer = new NeuronLayer(inputsCount, neuronsCount, bias, p);
+        NeuronLayer layer = new NeuronLayer(layers[layerPosition].OutputsCount, neuronsCount, bias, p);
+
+        totalWeightsCount -= layers[layerPosition].OutputsCount+1 * layers[layerPosition + 1].OutputsCount;
+
+        layers[layerPosition + 1] = new NeuronLayer(neuronsCount, layers[layerPosition + 1].NeuronsCount, bias, p);
         
-        totalWeightsCount -= layers[layerPosition].InputsCount * layers[layerPosition + 1].OutputsCount;
         
         totalWeightsCount += layers[layerPosition + 1].OutputsCount * neuronsCount;
-        layers[layerPosition+1] = new NeuronLayer(neuronsCount, layers[layerPosition+1].NeuronsCount, bias, p);
-        
-        
-        totalWeightsCount += layers[layerPosition].InputsCount * neuronsCount;
+
+
+        totalWeightsCount += layers[layerPosition].OutputsCount+1 * neuronsCount;
+
+
         Debug.Log($"The new totalWeight is{totalWeightsCount}");
-        layers.Insert(layerPosition+1,layer);
+        layers.Insert(layerPosition + 1, layer);
+
+        totalWeightsCount = GetWeightsCount();
         Debug.Log($"The weight is{GetWeightsCount()}");
 
         return true;
@@ -135,21 +141,18 @@ public class Brain
 
         return weights;
     }
+
     public int GetWeightsCount()
     {
         int id = 0;
-        for (int i = 0; i < layers.Count; i++)
+        foreach (var layer in layers)
         {
-            float[] ws = layers[i].GetWeights();
-
-            for (int j = 0; j < ws.Length; j++)
-            {
-                id++;
-            }
+            id+= layer.GetWeightCount();
         }
 
         return id;
     }
+
     public float[] Synapsis(float[] inputs)
     {
         float[] outputs = null;
@@ -174,9 +177,11 @@ public class Brain
                 weights[index, j] = layers[0].neurons[index].GetWeights()[j];
             }
         }
-        Layer layer = new Layer(id,weights);
+
+        Layer layer = new Layer(id, weights);
         return layer;
-    } 
+    }
+
     public Layer GetOutputLayer()
     {
         Index layerIndex = ^1;
@@ -189,19 +194,22 @@ public class Brain
                 weights[index, j] = layers[layerIndex].neurons[index].GetWeights()[j];
             }
         }
-        Layer layer = new Layer(id,weights);
+
+        Layer layer = new Layer(id, weights);
         return layer;
     }
+
     public Layer[] GetHiddenLayers()
     {
-        Layer[] layersToReturn = new Layer[layers.Count-2 > 0 ? layers.Count - 2 : 0];
+        Layer[] layersToReturn = new Layer[layers.Count - 2 > 0 ? layers.Count - 2 : 0];
         var count = 0;
         for (var k = 0; k < this.layers.Count; k++)
         {
-            if (k == 0 || k == this.layers.Count -1)
+            if (k == 0 || k == this.layers.Count - 1)
             {
                 continue;
             }
+
             int id = layers[k].neurons.Length;
             float[,] weights = new float[layers[k].neurons.Length, layers[k].neurons[0].WeightsCount];
             for (var index = 0; index < layers[k].neurons.Length; index++)
@@ -211,9 +219,11 @@ public class Brain
                     weights[index, j] = layers[k].neurons[index].GetWeights()[j];
                 }
             }
-            layersToReturn[count] = new Layer(id,weights);
+
+            layersToReturn[count] = new Layer(id, weights);
             count++;
         }
+
         return layersToReturn;
     }
 }

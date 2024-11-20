@@ -74,6 +74,18 @@ public class NeuronLayer
 		}
 
 		return weights;
+	}	
+	public int GetWeightCount()
+	{
+
+		int id = 0;
+
+		foreach (var neuron in neurons)
+		{
+			id  += neuron.GetWeights().Length;
+		}
+
+		return id;
 	}
 
 	public float[] Synapsis(float[] inputs)
