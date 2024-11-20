@@ -28,7 +28,7 @@ public class PopulationManager : MonoBehaviour
     public float P = 0.5f;
 
 
-    public GeneticAlgorithm genAlg;
+    public GeneticAlgorithmData genAlg;
 
     List<Tank> populationGOs = new List<Tank>();
     List<Genome> population = new List<Genome>();
@@ -111,7 +111,7 @@ public class PopulationManager : MonoBehaviour
 
     GenerateInitialPopulation();
         CreateMines();
-        genAlg = new GeneticAlgorithm(EliteCount, MutationChance, MutationRate, brains[0]);
+        genAlg = new GeneticAlgorithmData(EliteCount, MutationChance, MutationRate, brains[0]);
 
         isRunning = true;
     }
@@ -146,7 +146,7 @@ public class PopulationManager : MonoBehaviour
         {
             Brain brain = CreateBrain();
 
-            Genome genome = new Genome(brain.GetTotalWeightsCount());
+            Genome genome = new Genome(brain.GetWeightsCount());
 
             brain.SetWeights(genome.genome);
             brains.Add(brain);
@@ -193,7 +193,7 @@ public class PopulationManager : MonoBehaviour
         string genonmes = JsonUtility.ToJson(genAlg,true);
         System.IO.File.WriteAllText(Application.dataPath+ "/Saves/Genomes.json", genonmes);
         // Evolve each genome and create a new array of genomes
-        Genome[] newGenomes = genAlg.Epoch(population.ToArray());
+        Genome[] newGenomes = GeneticAlgorithm.Epoch(population.ToArray(), genAlg);
 
         // Clear current population
         population.Clear();
@@ -206,14 +206,14 @@ public class PopulationManager : MonoBehaviour
         {
             Brain brain = brains[i];
 
-            brain.CopyStructureFrom(genAlg.brain);
+            brain.CopyStructureFrom(genAlg.brainStructure);
             brain.SetWeights(newGenomes[i].genome);
 
             populationGOs[i].SetBrain(newGenomes[i], brain);
             populationGOs[i].transform.position = GetRandomPos();
             populationGOs[i].transform.rotation = GetRandomRot();
         }
-        genAlg.brain = brains[0];
+        genAlg.brainStructure = brains[0];
     }
 
     // Update is called once per frame

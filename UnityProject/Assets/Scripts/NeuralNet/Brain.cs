@@ -71,7 +71,7 @@ public class Brain
 
         NeuronLayer layer = new NeuronLayer(inputsCount, neuronsCount, bias, p);
 
-        totalWeightsCount += (inputsCount + 1) * neuronsCount;
+        totalWeightsCount += inputsCount * neuronsCount;
 
         layers.Add(layer);
 
@@ -88,7 +88,7 @@ public class Brain
 
         NeuronLayer layer = new NeuronLayer(layers[layerPosition].OutputsCount, neuronsCount, bias, p);
 
-        totalWeightsCount -= layers[layerPosition].OutputsCount+1 * layers[layerPosition + 1].OutputsCount;
+        totalWeightsCount -= layers[layerPosition].OutputsCount * layers[layerPosition + 1].OutputsCount;
 
         layers[layerPosition + 1] = new NeuronLayer(neuronsCount, layers[layerPosition + 1].NeuronsCount, bias, p);
         
@@ -96,7 +96,7 @@ public class Brain
         totalWeightsCount += layers[layerPosition + 1].OutputsCount * neuronsCount;
 
 
-        totalWeightsCount += layers[layerPosition].OutputsCount+1 * neuronsCount;
+        totalWeightsCount += layers[layerPosition].OutputsCount * neuronsCount;
 
 
         Debug.Log($"The new totalWeight is{totalWeightsCount}");
@@ -104,6 +104,29 @@ public class Brain
 
         totalWeightsCount = GetWeightsCount();
         Debug.Log($"The weight is{GetWeightsCount()}");
+
+        return true;
+    }
+
+    public bool AddNeuronAtLayer(int neuronsCountToAdd, int layerPosition)
+    {
+        NeuronLayer oldLayer = layers[layerPosition];
+        layers[layerPosition] = new NeuronLayer(oldLayer.InputsCount, oldLayer.NeuronsCount + neuronsCountToAdd, bias, p);
+
+
+        NeuronLayer oldNextLayer = layers[layerPosition + 1];
+        layers[layerPosition + 1] = new NeuronLayer(layers[layerPosition].OutputsCount, oldNextLayer.NeuronsCount, bias, p);
+
+
+
+        totalWeightsCount += layers[layerPosition].OutputsCount * neuronsCountToAdd;
+        totalWeightsCount += layers[layerPosition + 1].OutputsCount * neuronsCountToAdd;
+
+
+        Debug.Log($"The new totalWeight is{totalWeightsCount} adding neurons");
+        
+        totalWeightsCount = GetWeightsCount();
+        Debug.Log($"The weight is{GetWeightsCount()} adding neurons");
 
         return true;
     }

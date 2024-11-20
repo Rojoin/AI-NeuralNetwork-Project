@@ -5,7 +5,7 @@ public class NeuronLayer
 {
 	public Neuron[] neurons;
 	private float[] outputs;
-	private int totalWeights = 0;
+	public int totalWeights = 0;
 	public int inputsCount = 0;
 	private float bias = 1;
 	private	float p = 0.5f;
@@ -40,8 +40,8 @@ public class NeuronLayer
 
 		for (int i = 0; i < neurons.Length; i++)
 		{
-			neurons[i] = new Neuron(inputsCount + 1, bias, p);
-			totalWeights += inputsCount + 1;
+			neurons[i] = new Neuron(inputsCount, bias, p);
+			totalWeights += inputsCount ;
 		}
 
 		outputs = new float[neurons.Length];
