@@ -5939,20 +5939,23 @@ MonoBehaviour:
   SceneHalfExtents: {x: 30, y: 0, z: 40}
   PopulationCount: 40
   MinesCount: 40
-  GenerationDuration: 20
+  GenerationDuration: 1
   IterationCount: 1
   EliteCount: 4
   MutationChance: 0.11
   MutationRate: 0.02
-  InputsCount: 67
+  InputsCount: 5
   HiddenLayers: 1
   OutputsCount: 2
   NeuronsCountPerHL: 7
   Bias: -1
   P: 0.5
   genAlg:
-    population: []
-    brain:
+    totalFitness: 0
+    eliteCount: 0
+    mutationChance: 0
+    mutationRate: 0
+    brainStructure:
       layers: []
       FitnessReward: 0
       FitnessMultiplier: 0
@@ -5960,7 +5963,7 @@ MonoBehaviour:
       bias: 1
       p: 0.5
       inputs: []
-    shouldEvolve: 1
+    generationStalled: 0
 --- !u!4 &1690210759
 Transform:
   m_ObjectHideFlags: 0

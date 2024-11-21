@@ -17,7 +17,7 @@ public sealed class ScavengerMoveState : SporeMoveState
 {
     private float MinEatRadius;
     private int counter;
-    private int movesPerTurn = 2;
+
 
     public override BehaviourActions GetTickBehaviours(params object[] parameters)
     {
@@ -36,7 +36,7 @@ public sealed class ScavengerMoveState : SporeMoveState
         {
             List<Vector2> newPositions = new List<Vector2> { nearFoodPos };
             float distanceFromFood = GetDistanceFrom(newPositions);
-
+//TODO: Hacer flocking
             if (distanceFromFood < MinEatRadius && !hasEatenFood)
             {
                 counter++;
@@ -55,16 +55,16 @@ public sealed class ScavengerMoveState : SporeMoveState
                 brain.FitnessMultiplier -= 0.05f;
             }
 
-            Vector2[] direction = new Vector2[movesPerTurn];
-            for (int i = 0; i < direction.Length; i++)
-            {
-                direction[i] = GetDir(outputs[i]);
-            }
-
-            foreach (Vector2 dir in direction)
-            {
-                onMove.Invoke(direction);
-            }
+            // Vector2[] direction = new Vector2[movesPerTurn];
+            // for (int i = 0; i < direction.Length; i++)
+            // {
+            //     direction[i] = GetDir(outputs[i]);
+            // }
+            //
+            // foreach (Vector2 dir in direction)
+            // {
+            //     onMove.Invoke(direction);
+            // }
         });
 
 
@@ -96,7 +96,7 @@ public class Scavenger : SporeAgent<ScavengerStates, ScavengerFlags>
     protected Vector2 dir;
     public bool hasEaten = false;
     public int counterEating = 0;
-    protected float speed;
+    protected float speed = 5;
 
     public void Reset(Vector2 position)
     {

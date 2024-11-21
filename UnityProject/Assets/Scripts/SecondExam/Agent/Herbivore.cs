@@ -366,7 +366,7 @@ namespace Miner.SecondExam.Agent
         public Brain escapeBrain;
         public Brain eatBrain;
 
-        public Herbivore(SporeManager populationManager, Brain main, Brain moveBrain, Brain escapeBrain, Brain eatBrain)
+        public Herbivore(SporeManager populationManager, Brain main, Brain moveBrain, Brain eatBrain, Brain escapeBrain)
             : base(populationManager, main)
         {
             this.moveBrain = moveBrain;

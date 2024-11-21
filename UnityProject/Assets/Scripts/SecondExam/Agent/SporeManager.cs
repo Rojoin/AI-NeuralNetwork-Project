@@ -23,10 +23,10 @@ namespace Miner.SecondExam.Agent
         public int turnCount = 100;
         private int currentTurn = 0;
 
-        private List<Herbivore> herbis = new List<Herbivore>();
-        private List<Plant> plants = new List<Plant>();
-        private List<Carnivore> carnivores = new List<Carnivore>();
-        private List<Scavenger> scavengers = new List<Scavenger>();
+        public List<Herbivore> herbis = new List<Herbivore>();
+        public List<Plant> plants = new List<Plant>();
+        public List<Carnivore> carnivores = new List<Carnivore>();
+        public List<Scavenger> scavengers = new List<Scavenger>();
 
         private List<Brain> herbMainBrains = new List<Brain>();
         private List<Brain> herbEatBrains = new List<Brain>();
@@ -43,7 +43,7 @@ namespace Miner.SecondExam.Agent
 
         private bool isActive;
         private Dictionary<uint, Brain> entities;
-        private Dictionary<List<Brain>, GeneticAlgorithmData> geneticInfo;
+        private Dictionary<List<Brain>, GeneticAlgorithmData> geneticInfo = new Dictionary<List<Brain>, GeneticAlgorithmData>();
 
         public SporeManager(List<BrainData> herbBrainData, List<BrainData> carnivoreBrainData,
             List<BrainData> scavBrainData, int gridSizeX, int gridSizeY, int hervivoreCount, int carnivoreCount,
@@ -175,9 +175,9 @@ namespace Miner.SecondExam.Agent
                 herbis.Add(new Herbivore(this, herbBrainData[0].ToBrain(), herbBrainData[1].ToBrain(),
                     herbBrainData[2].ToBrain(), herbBrainData[3].ToBrain()));
                 herbMainBrains.Add(herbis[i].mainBrain);
+                herbMoveBrains.Add(herbis[i].moveBrain);
                 herbEatBrains.Add(herbis[i].eatBrain);
                 herbEscapeBrains.Add(herbis[i].escapeBrain);
-                herbMoveBrains.Add(herbis[i].moveBrain);
             }
 
             geneticInfo.Add(herbMainBrains,
