@@ -5,7 +5,10 @@ EditorBuildSettings:
   m_ObjectHideFlags: 0
   serializedVersion: 2
   m_Scenes:
-  - enabled: 1
+  - enabled: 0
     path: Assets/Pathfinder/PathfinderScene.unity
     guid: 43c79532a79f1fa4fb7d6919cdf84c30
+  - enabled: 1
+    path: Assets/Scenes/Spore.unity
+    guid: 7eaf646063003024d8f6cdd9c03d1592
   m_configObjects: {}

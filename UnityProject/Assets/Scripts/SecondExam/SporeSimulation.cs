@@ -54,7 +54,7 @@ public class SporeSimulation : MonoBehaviour
 
     private const int MAX_OBJS_PER_DRAWCALL = 1000;
 
-    void Start()
+    void OnEnable()
     {
         mainHerb = new BrainData(11, new int[] { 7, 5, 3 }, 3, herbBias, herbP);
         moveBrain = new BrainData(4, new int[] { 5, 4 }, 4, herbBias, herbP);

@@ -123,6 +123,75 @@ NavMeshSettings:
     debug:
       m_Flags: 0
   m_NavMeshData: {fileID: 0}
+--- !u!1001 &321515988
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: 335332011468906888, guid: 5fab2c8899e76214abe3461192ef1671, type: 3}
+      propertyPath: m_Name
+      value: Voronoi
+      objectReference: {fileID: 0}
+    - target: {fileID: 5018696705912333701, guid: 5fab2c8899e76214abe3461192ef1671, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5018696705912333701, guid: 5fab2c8899e76214abe3461192ef1671, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5018696705912333701, guid: 5fab2c8899e76214abe3461192ef1671, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5018696705912333701, guid: 5fab2c8899e76214abe3461192ef1671, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5018696705912333701, guid: 5fab2c8899e76214abe3461192ef1671, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5018696705912333701, guid: 5fab2c8899e76214abe3461192ef1671, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5018696705912333701, guid: 5fab2c8899e76214abe3461192ef1671, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5018696705912333701, guid: 5fab2c8899e76214abe3461192ef1671, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5018696705912333701, guid: 5fab2c8899e76214abe3461192ef1671, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5018696705912333701, guid: 5fab2c8899e76214abe3461192ef1671, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7063377485027945341, guid: 5fab2c8899e76214abe3461192ef1671, type: 3}
+      propertyPath: graph
+      value: 
+      objectReference: {fileID: 701248634}
+    - target: {fileID: 7063377485027945341, guid: 5fab2c8899e76214abe3461192ef1671, type: 3}
+      propertyPath: polis.Array.size
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7063377485027945341, guid: 5fab2c8899e76214abe3461192ef1671, type: 3}
+      propertyPath: pointsToCheck.Array.size
+      value: 0
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 5fab2c8899e76214abe3461192ef1671, type: 3}
 --- !u!1 &639481714
 GameObject:
   m_ObjectHideFlags: 0
@@ -209,7 +278,7 @@ Transform:
   m_GameObject: {fileID: 639481714}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 1, z: -10}
+  m_LocalPosition: {x: 5.24, y: 6.03, z: -14.84}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -255,8 +324,8 @@ MonoBehaviour:
   plantMesh: {fileID: 10208, guid: 0000000000000000e000000000000000, type: 0}
   carnMesh: {fileID: 10207, guid: 0000000000000000e000000000000000, type: 0}
   scavMesh: {fileID: 4300000, guid: 002e2a607f5b64c48be0b3b0d8b8bfdd, type: 3}
-  gridSizeX: 100
-  gridSizeY: 100
+  gridSizeX: 10
+  gridSizeY: 10
   herbivoreCount: 50
   carnivoreCount: 4
   scavengerCount: 4
@@ -265,174 +334,7 @@ MonoBehaviour:
   mutationChance: 0.5
   mutationRate: 0.43
   eliteCount: 4
-  sporeManager:
-    generation: 0
-    hervivoreCount: 30
-    carnivoreCount: 20
-    scavengerCount: 20
-    gridSizeX: 10
-    gridSizeY: 10
-    EliteCount: 4
-    MutationChance: 0.1
-    MutationRate: 0.01
-    turnCount: 100
-    herbMainBrains: []
-    herbEatBrains: []
-    herbMoveBrains: []
-    herbEscapeBrains: []
-    carnMainBrains: []
-    carnMoveBrains: []
-    carnEatBrains: []
-    scavMainBrains: []
-    scavFlokingBrains: []
-    HMainB:
-      totalFitness: 0
-      eliteCount: 5
-      mutationChance: 0
-      mutationRate: 0
-      brainStructure:
-        layers: []
-        FitnessReward: 0
-        FitnessMultiplier: 0
-        outputs: []
-        bias: 1
-        p: 0.5
-        inputs: []
-      generationStalled: 0
-      lastGenome: []
-      generationCount: 0
-    HEatB:
-      totalFitness: 0
-      eliteCount: 5
-      mutationChance: 0
-      mutationRate: 0
-      brainStructure:
-        layers: []
-        FitnessReward: 0
-        FitnessMultiplier: 0
-        outputs: []
-        bias: 1
-        p: 0.5
-        inputs: []
-      generationStalled: 0
-      lastGenome: []
-      generationCount: 0
-    HEscapeB:
-      totalFitness: 0
-      eliteCount: 5
-      mutationChance: 0
-      mutationRate: 0
-      brainStructure:
-        layers: []
-        FitnessReward: 0
-        FitnessMultiplier: 0
-        outputs: []
-        bias: 1
-        p: 0.5
-        inputs: []
-      generationStalled: 0
-      lastGenome: []
-      generationCount: 0
-    HMoveB:
-      totalFitness: 0
-      eliteCount: 5
-      mutationChance: 0
-      mutationRate: 0
-      brainStructure:
-        layers: []
-        FitnessReward: 0
-        FitnessMultiplier: 0
-        outputs: []
-        bias: 1
-        p: 0.5
-        inputs: []
-      generationStalled: 0
-      lastGenome: []
-      generationCount: 0
-    CMainB:
-      totalFitness: 0
-      eliteCount: 5
-      mutationChance: 0
-      mutationRate: 0
-      brainStructure:
-        layers: []
-        FitnessReward: 0
-        FitnessMultiplier: 0
-        outputs: []
-        bias: 1
-        p: 0.5
-        inputs: []
-      generationStalled: 0
-      lastGenome: []
-      generationCount: 0
-    CEatB:
-      totalFitness: 0
-      eliteCount: 5
-      mutationChance: 0
-      mutationRate: 0
-      brainStructure:
-        layers: []
-        FitnessReward: 0
-        FitnessMultiplier: 0
-        outputs: []
-        bias: 1
-        p: 0.5
-        inputs: []
-      generationStalled: 0
-      lastGenome: []
-      generationCount: 0
-    CMoveB:
-      totalFitness: 0
-      eliteCount: 5
-      mutationChance: 0
-      mutationRate: 0
-      brainStructure:
-        layers: []
-        FitnessReward: 0
-        FitnessMultiplier: 0
-        outputs: []
-        bias: 1
-        p: 0.5
-        inputs: []
-      generationStalled: 0
-      lastGenome: []
-      generationCount: 0
-    SMainB:
-      totalFitness: 0
-      eliteCount: 5
-      mutationChance: 0
-      mutationRate: 0
-      brainStructure:
-        layers: []
-        FitnessReward: 0
-        FitnessMultiplier: 0
-        outputs: []
-        bias: 1
-        p: 0.5
-        inputs: []
-      generationStalled: 0
-      lastGenome: []
-      generationCount: 0
-    SFlockB:
-      totalFitness: 0
-      eliteCount: 5
-      mutationChance: 0
-      mutationRate: 0
-      brainStructure:
-        layers: []
-        FitnessReward: 0
-        FitnessMultiplier: 0
-        outputs: []
-        bias: 1
-        p: 0.5
-        inputs: []
-      generationStalled: 0
-      lastGenome: []
-      generationCount: 0
-    fileToLoad: 
-    filepath: 
-    data: []
-    isActive: 0
+  voronoi: {fileID: 1146561065}
   simulationDeltaTime: 0.1
   herbBias: 0.34
   herbP: 0.17
@@ -455,9 +357,21 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1146561065 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 7063377485027945341, guid: 5fab2c8899e76214abe3461192ef1671, type: 3}
+  m_PrefabInstance: {fileID: 321515988}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c968b4940e924d909f369ffffb58ab87, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0
   m_Roots:
   - {fileID: 639481717}
   - {fileID: 701248635}
+  - {fileID: 321515988}
