@@ -59,17 +59,17 @@ namespace Miner.SecondExam
 
         void Start()
         {
-            mainHerb = new BrainData(11, new int[] { 7, 5 }, 3, herbBias, herbP);
-            moveBrain = new BrainData(4, new int[] { 5 }, 4, herbBias, herbP);
-            eatBrain = new BrainData(5, new int[] { 3 }, 1, herbBias, herbP);
-            escapeBrain = new BrainData(8, new int[] { 5 }, 4, herbBias, herbP);
+            mainHerb = new BrainData(11, new int[] { 7, 5,3 }, 3, herbBias, herbP);
+            moveBrain = new BrainData(4, new int[] { 5 ,4}, 4, herbBias, herbP);
+            eatBrain = new BrainData(5, new int[] { 3 ,}, 1, herbBias, herbP);
+            escapeBrain = new BrainData(8, new int[] { 5,3 }, 4, herbBias, herbP);
 
-            mainCarn = new BrainData(5, new int[] { 3 }, 2, carnBias, carnP);
-            moveCarn = new BrainData(4, new int[] { 3 }, 2, carnBias, carnP);
-            eatCarn = new BrainData(5, new int[] { 2 }, 1, carnBias, carnP);
+            mainCarn = new BrainData(5, new int[] { 3,2 }, 2, carnBias, carnP);
+            moveCarn = new BrainData(4, new int[] { 3 ,2}, 2, carnBias, carnP);
+            eatCarn = new BrainData(5, new int[] { 2 ,2}, 1, carnBias, carnP);
 
-            mainScav = new BrainData(5, new int[] { 3 }, 2, scavBias, scavP);
-            flockScav = new BrainData(6, new int[] { 5 }, 4, scavBias, scavP);
+            mainScav = new BrainData(5, new int[] { 3 ,5}, 2, scavBias, scavP);
+            flockScav = new BrainData(8, new int[] { 5 ,5,5}, 4, scavBias, scavP);
             ;
 
 

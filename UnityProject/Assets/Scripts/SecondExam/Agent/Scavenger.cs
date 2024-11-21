@@ -17,7 +17,10 @@ public sealed class ScavengerMoveState : SporeMoveState
 {
     private float MinEatRadius;
     private int counter;
-
+    private Vector2 dir;
+    private float speed;
+    private float radius;
+    private Brain flockingBrain;
 
     public override BehaviourActions GetTickBehaviours(params object[] parameters)
     {
@@ -32,6 +35,11 @@ public sealed class ScavengerMoveState : SporeMoveState
         var onMove = parameters[6] as Action<Vector2>;
         counter = (int)parameters[7];
         var onEat = parameters[8] as Action<int>;
+        dir = (Vector2)parameters[9];
+        float rotation = (float)(parameters[10]);
+        speed = (float)(parameters[11]);
+        radius = (float)(parameters[12]);
+        List<Scavenger> nearScavengers = parameters[13] as List<Scavenger>;
         behaviour.AddMultiThreadBehaviour(0, () =>
         {
             List<Vector2> newPositions = new List<Vector2> { nearFoodPos };
@@ -55,18 +63,85 @@ public sealed class ScavengerMoveState : SporeMoveState
                 brain.FitnessMultiplier -= 0.05f;
             }
 
-            // Vector2[] direction = new Vector2[movesPerTurn];
-            // for (int i = 0; i < direction.Length; i++)
-            // {
-            //     direction[i] = GetDir(outputs[i]);
-            // }
-            //
-            // foreach (Vector2 dir in direction)
-            // {
-            //     onMove.Invoke(direction);
-            // }
+            float leftValue = outputs[0];
+            float rightValue = outputs[1];
+
+            float netRotationValue = leftValue - rightValue;
+            float turnAngle = netRotationValue * MathF.PI / 180;
+
+            var rotationMatrix = new Matrix3x2(
+                MathF.Cos(turnAngle), MathF.Sin(turnAngle),
+                -MathF.Sin(turnAngle), MathF.Cos(turnAngle),
+                0, 0
+            );
+
+            dir = Vector2.Transform(dir, rotationMatrix);
+            dir = Vector2.Normalize(dir);
+            rotation += netRotationValue;
+
+            rotation = (rotation + 360) % 360;
         });
 
+        behaviour.AddMultiThreadBehaviour(1, () =>
+        {
+            Vector2 flokingInfluence =
+                dir * (flockingBrain.outputs[0] + flockingBrain.outputs[1] + flockingBrain.outputs[2]);
+
+            Vector2 finalDirection = dir + flokingInfluence;
+
+            finalDirection = Vector2.Normalize(finalDirection);
+            onMove.Invoke(finalDirection);
+            Vector2 finalPosition = position + finalDirection * speed;
+
+
+            onMove.Invoke(finalPosition);
+        });
+
+        //fitness
+        behaviour.AddMultiThreadBehaviour(2, () =>
+        {
+         
+            //fitness Floking
+            foreach (Scavenger scavenger in nearScavengers)
+            {
+                //Alignment
+                float diff = MathF.Abs(rotation - scavenger.rotation);
+
+                if (diff > 180)
+                    diff = 360 - diff;
+
+                if (diff > 90)
+                {
+                    flockingBrain.FitnessMultiplier -= 0.05f;
+                }
+                else
+                {
+                    flockingBrain.FitnessReward += 1;
+                }
+
+                //Cohesion
+                if (Vector2.Distance(position, scavenger.position) > radius * 6)
+                {
+                    flockingBrain.FitnessMultiplier -= 0.05f;
+                }
+                else
+                {
+                    flockingBrain.FitnessReward += 1;
+                }
+
+                //Separation
+                if (Vector2.Distance(position, scavenger.position) < radius * 2)
+                {
+                    flockingBrain.FitnessMultiplier -= 0.05f;
+                }
+                else
+                {
+                    flockingBrain.FitnessReward += 1;
+                }
+
+         
+            }
+        });
 
         return behaviour;
     }
@@ -78,7 +153,7 @@ public sealed class ScavengerMoveState : SporeMoveState
         MinEatRadius = (float)(parameters[2]);
         positiveHalf = Neuron.Sigmoid(0.5f, brain.p);
         negativeHalf = Neuron.Sigmoid(-0.5f, brain.p);
-
+        flockingBrain = parameters[3] as Brain;
         return default;
     }
 
@@ -93,10 +168,12 @@ public class Scavenger : SporeAgent<ScavengerStates, ScavengerFlags>
 {
     public Brain flockingBrain;
     float minEatRadius;
-    protected Vector2 dir;
+    protected Vector2 dir = new Vector2(1, 1);
     public bool hasEaten = false;
     public int counterEating = 0;
+    public float rotation = 0;
     protected float speed = 5;
+    protected float radius = 2;
 
     public void Reset(Vector2 position)
     {
@@ -114,13 +191,13 @@ public class Scavenger : SporeAgent<ScavengerStates, ScavengerFlags>
         Action<Vector2> setDir;
         Action<int> setEatingCounter;
         fsm.AddBehaviour<ScavengerMoveState>(ScavengerStates.Move,
-            onEnterParametes: () => { return new object[] { mainBrain, position, minEatRadius }; },
+            onEnterParametes: () => { return new object[] { mainBrain, position, minEatRadius, flockingBrain }; },
             onTickParametes: () =>
             {
                 return new object[]
                 {
-                    mainBrain.outputs, position,  GetNearFoodPos(),minEatRadius, hasEaten, GetNearHerbivore(),
-                    setDir = MoveTo, counterEating, setEatingCounter = b => counterEating = b
+                    mainBrain.outputs, position, GetNearFoodPos(), minEatRadius, hasEaten, GetNearHerbivore(),
+                    setDir = MoveTo, counterEating, setEatingCounter = b => counterEating = b,dir,rotation,speed,radius,GetNearScavs()
                 };
             });
 
@@ -137,7 +214,7 @@ public class Scavenger : SporeAgent<ScavengerStates, ScavengerFlags>
         mainBrain.inputs = new[] { position.X, position.Y, minEatRadius, nearFoodPos.X, nearFoodPos.Y };
         //Todo: Agregar los otros parametros de flocking
         var ner = GetNearScavs();
-        flockingBrain.inputs = new[] { position.X, position.Y, ner[0].X, ner[0].Y, ner[1].X, ner[1].Y };
+        flockingBrain.inputs = new[] { position.X, position.Y, ner[0].position.X, ner[0].position.Y, ner[1].position.X, ner[1].position.Y ,ner[0].rotation, ner[1].rotation};
     }
 
     public override void Update(float deltaTime)
@@ -178,7 +255,7 @@ public class Scavenger : SporeAgent<ScavengerStates, ScavengerFlags>
         return populationManager.GetNearHerbivore(position);
     }
 
-    public List<Vector2> GetNearScavs()
+    public List<Scavenger> GetNearScavs()
     {
         return populationManager.GetNearScavs(position);
     }

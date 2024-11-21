@@ -527,7 +527,7 @@ namespace Miner.SecondExam.Agent
             return nearest;
         }
 
-        public List<Vector2> GetNearScavs(Vector2 position)
+        public List<Scavenger> GetNearScavs(Vector2 position)
         {
             var nearbyScav = new List<(Scavenger scav, float distance)>();
 
@@ -540,10 +540,10 @@ namespace Miner.SecondExam.Agent
 
             nearbyScav.Sort((a, b) => a.distance.CompareTo(b.distance));
 
-            List<Vector2> nearScav = new List<Vector2>();
-            nearScav.Add(nearbyScav[0].scav.position);
-            nearScav.Add(nearbyScav[1].scav.position);
-            nearScav.Add(nearbyScav[2].scav.position);
+            List<Scavenger> nearScav = new List<Scavenger>();
+            nearScav.Add(nearbyScav[0].scav);
+            nearScav.Add(nearbyScav[1].scav);
+            nearScav.Add(nearbyScav[2].scav);
             return nearScav;
         }
 
