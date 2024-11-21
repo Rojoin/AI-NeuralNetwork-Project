@@ -1,16 +1,8 @@
-﻿using System;
+﻿using System.Collections.Generic;
 using RojoinNeuralNetwork;
-using Unity.Mathematics;
 using UnityEngine;
-using UnityEngine.Serialization;
 
-
-    using System.Collections.Generic;
-    using System.Numerics;
-    using UnityEngine;
-    using Vector2 = System.Numerics.Vector2;
-
-    public class SporeSimulation : MonoBehaviour
+public class SporeSimulation : MonoBehaviour
     {
         public string fileToLoad;
         public string filePath = "/Saves/Genomes";
@@ -114,21 +106,21 @@ using UnityEngine.Serialization;
         {
             foreach (var agent in sporeManager.herbis)
             {
-                UnityEngine.Vector3 worldPosition = new UnityEngine.Vector3(agent.position.X, agent.position.Y, 0);
+                Vector3 worldPosition = new Vector3(agent.position.X, agent.position.Y, 0);
                 herbMaterial.color = Color.yellow;
                 if (agent.lives < 0)
                 {
                     herbMaterial.color = Color.cyan;
                 }
 
-                Graphics.DrawMesh(herbMesh, worldPosition, UnityEngine.Quaternion.identity, herbMaterial, 0);
+                Graphics.DrawMesh(herbMesh, worldPosition, Quaternion.identity, herbMaterial, 0);
             }
 
             foreach (var agent in sporeManager.carnivores)
             {
-                UnityEngine.Vector3 worldPosition = new UnityEngine.Vector3(agent.position.X, agent.position.Y, 0);
+                Vector3 worldPosition = new Vector3(agent.position.X, agent.position.Y, 0);
                 carnMaterial.color = Color.red;
-                Graphics.DrawMesh(carnMesh, worldPosition, UnityEngine.Quaternion.identity, carnMaterial, 0);
+                Graphics.DrawMesh(carnMesh, worldPosition, Quaternion.identity, carnMaterial, 0);
             }
 
             foreach (var agent in sporeManager.plants)
@@ -138,16 +130,16 @@ using UnityEngine.Serialization;
                     continue;
                 }
 
-                UnityEngine.Vector3 worldPosition = new UnityEngine.Vector3(agent.position.X, agent.position.Y, 0);
+                Vector3 worldPosition = new Vector3(agent.position.X, agent.position.Y, 0);
                 plantMaterial.color = Color.green;
-                Graphics.DrawMesh(plantMesh, worldPosition, UnityEngine.Quaternion.identity, plantMaterial, 0);
+                Graphics.DrawMesh(plantMesh, worldPosition, Quaternion.identity, plantMaterial, 0);
             }
 
             foreach (var agent in sporeManager.scavengers)
             {
-                UnityEngine.Vector3 worldPosition = new UnityEngine.Vector3(agent.position.X, agent.position.Y, 0);
+                Vector3 worldPosition = new Vector3(agent.position.X, agent.position.Y, 0);
                 scavMaterial.color = Color.black;
-                Graphics.DrawMesh(scavMesh, worldPosition, UnityEngine.Quaternion.identity, scavMaterial, 0);
+                Graphics.DrawMesh(scavMesh, worldPosition, Quaternion.identity, scavMaterial, 0);
             }
         }
 [ContextMenu("Load Save")]
@@ -163,8 +155,8 @@ using UnityEngine.Serialization;
             // Example: Draw grid or visualize entities
             Gizmos.color = Color.gray;
             for (int x = 0; x <= gridSizeX; x++)
-                Gizmos.DrawLine(new UnityEngine.Vector3(x, 0, 0), new UnityEngine.Vector3(x, gridSizeY, 0));
+                Gizmos.DrawLine(new Vector3(x, 0, 0), new Vector3(x, gridSizeY, 0));
             for (int y = 0; y <= gridSizeY; y++)
-                Gizmos.DrawLine(new UnityEngine.Vector3(0, y, 0), new UnityEngine.Vector3(gridSizeX, y, 0));
+                Gizmos.DrawLine(new Vector3(0, y, 0), new Vector3(gridSizeX, y, 0));
         }
     }
