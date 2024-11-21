@@ -30,7 +30,8 @@ public class SporeSimulation : MonoBehaviour
     public float mutationRate = 0.01f;
     public int eliteCount = 4;
 
-    [SerializeField] private SporeManager sporeManager;
+    [SerializeField] public VoronoiSporeManager sporeManager;
+    [SerializeField] public VoronoiDiagram voronoi;
     public float simulationDeltaTime = 0.1f; // Adjust for simulation speed
     private float timer = 0;
     [Header("BrainConfigs")] public float herbBias = 0.5f;
@@ -49,6 +50,7 @@ public class SporeSimulation : MonoBehaviour
     private BrainData mainScav;
     private BrainData flockScav;
     ParallelOptions parallel = new ParallelOptions();
+
 
     private const int MAX_OBJS_PER_DRAWCALL = 1000;
 
@@ -75,7 +77,7 @@ public class SporeSimulation : MonoBehaviour
         var scavBrainData = new List<BrainData> { mainScav, flockScav };
 
 
-        sporeManager = new SporeManager(
+        sporeManager = new VoronoiSporeManager(voronoi,
             herbBrainData,
             carnBrainData,
             scavBrainData,
@@ -141,8 +143,6 @@ public class SporeSimulation : MonoBehaviour
             int index = 0;
             foreach (var agent in entities)
             {
-      
-
                 material.color = defaultColor;
 
 
@@ -154,7 +154,7 @@ public class SporeSimulation : MonoBehaviour
                 index++;
             }
 
-            // Draw instances
+
             for (int i = 0; i < drawMatrix.Count; i++)
             {
                 for (int j = 0; j < mesh.subMeshCount; j++)

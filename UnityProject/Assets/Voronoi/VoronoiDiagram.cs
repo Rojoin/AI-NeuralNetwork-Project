@@ -25,7 +25,7 @@ public class VoronoiDiagram : MonoBehaviour
     private Dictionary<(Vector2, Vector2), float> weight = new();
 
     public List<ThiessenPolygon2D<SegmentVec2, Vector2>> GetPoly => polis;
-    public GrapfView graph;
+    public SporeSimulation graph;
     public GameObject test;
     public List<Vector2> pointsToRemove = new List<Vector2>();
 
@@ -42,16 +42,15 @@ public class VoronoiDiagram : MonoBehaviour
 
     private IEnumerator Start()
     {
-        yield return null;
-        yield return null;
-        yield return null;
-        yield return null;
-        yield return null;
-        yield return null;
-
-        foreach (var Node in graph.graph.mines)
+yield return null;
+yield return null;
+yield return null;
+yield return null;
+yield return null;
+yield return null;
+        foreach (var Node in graph.sporeManager.plants)
         {
-            pointsToCheck.Add(Node.GetCoordinate());
+            pointsToCheck.Add(new Vector2(Node.position.X,Node.position.Y));
         }
 
         weight = new Dictionary<(Vector2, Vector2), float>();
@@ -69,6 +68,8 @@ public class VoronoiDiagram : MonoBehaviour
         }
 
         CreateSegments();
+        
+        yield break;
     }
 
     private void Update()
@@ -132,40 +133,28 @@ public class VoronoiDiagram : MonoBehaviour
 
     private void SetWeightPoligons()
     {
-        float allWeight = 0;
-        for (int i = 0; i < graph.graph.nodes.Count; i++)
-        {
-            allWeight += graph.graph.nodes[i].GetWeight();
-
-            for (int j = 0; j < polis.Count; j++)
-            {
-                if (polis[j].IsInside(graph.graph.nodes[i].GetCoordinate()))
-                {
-                    polis[j].weight += graph.graph.nodes[i].GetWeight();
-                    break;
-                }
-            }
-        }
-
-        CreateWeightedSegments();
+        // float allWeight = 0;
+        // for (int i = 0; i < graph.graph.nodes.Count; i++)
+        // {
+        //     allWeight += graph.graph.nodes[i].GetWeight();
+        //
+        //     for (int j = 0; j < polis.Count; j++)
+        //     {
+        //         if (polis[j].IsInside(graph.graph.nodes[i].GetCoordinate()))
+        //         {
+        //             polis[j].weight += graph.graph.nodes[i].GetWeight();
+        //             break;
+        //         }
+        //     }
+        // }
+        //
+        // CreateWeightedSegments();
     }
 
     private void CreateWeightedSegments()
     {
         weight.Clear();
-        // for (int index = 0; index < pointsToCheck.Count; index++)
-        // {
-        //     Vector2 point = pointsToCheck[index];
-        //     for (int j = 0; j< pointsToCheck.Count; j++)
-        //     {
-        //         if (index == j)
-        //         {
-        //             continue;
-        //         }
-        //         Vector2 otherPoint = pointsToCheck[j];
-        //         weight.TryAdd((point, otherPoint), 0.5f);
-        //     }
-        // }
+
         for (int i = 0; i < polis.Count; i++)
         {
             float totalNeighborWeight = 0f;
