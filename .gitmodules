@@ -1,3 +1,6 @@
 [submodule "RojoinSaveSystem"]
 	path = RojoinSaveSystem
 	url = https://github.com/Rojoin/RojoinSaveSystem.git
+[submodule "RojoinNeuralNetwork"]
+	path = RojoinNeuralNetwork
+	url = https://github.com/Rojoin/RojoinNeuralNetwork.git
