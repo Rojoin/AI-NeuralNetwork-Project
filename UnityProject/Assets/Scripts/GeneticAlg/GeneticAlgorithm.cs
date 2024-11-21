@@ -1,8 +1,8 @@
 ﻿using System;
 using UnityEngine;
 using System.Collections;
-using System.Collections.Generic;using RojoinSaveSystem;
-using RojoinSaveSystem.Attributes;
+using System.Collections.Generic;
+
 using Random = UnityEngine.Random;
 
 [System.Serializable]
@@ -34,18 +34,18 @@ public class Genome
 }
 
 [System.Serializable]
-public class GeneticAlgorithmData: ISaveObject
+public class GeneticAlgorithmData
 {
-    public SaveObjectData data = new SaveObjectData();
-   [SaveValue(0)] public float totalFitness = 0;
+    
+ public float totalFitness = 0;
     public int eliteCount = 0;
     public float mutationChance = 0.0f;
     public float mutationRate = 0.0f;
-    [SaveValue(1)]  public Brain brainStructure;
+  public Brain brainStructure;
     public readonly int maxStalledGenerationsUntilEvolve = 5;
     public int generationStalled = 0;
-    [SaveValue(2)]   public Genome[] lastGenome;
-
+   public Genome[] lastGenome;
+    public int generationCount = 0;
     public GeneticAlgorithmData()
     {
         eliteCount = 5;
@@ -60,7 +60,6 @@ public class GeneticAlgorithmData: ISaveObject
         this.mutationRate = mutationRate;
         this.brainStructure = brain;
         this.maxStalledGenerationsUntilEvolve = maxStalledGenerationsUntilEvolve;
-        SaveSystem.instance._saveSystem.AddObjectToSave(this);
     }
 
     public GeneticAlgorithmData(GeneticAlgorithmData data)
@@ -72,25 +71,7 @@ public class GeneticAlgorithmData: ISaveObject
         this.maxStalledGenerationsUntilEvolve = data.maxStalledGenerationsUntilEvolve;
     }
 
-    public int GetID()
-    {
-        return data.id;
-    }
-
-    public ISaveObject GetObject()
-    {
-        return this;
-    }
-
-    public void Save()
-    {
-       
-    }
-
-    public void Load()
-    {
-        
-    }
+    
 }
 
 [System.Serializable]

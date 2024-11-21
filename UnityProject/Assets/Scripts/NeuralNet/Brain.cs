@@ -2,14 +2,13 @@
 using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
-using RojoinSaveSystem;
-using RojoinSaveSystem.Attributes;
+
 
 [System.Serializable]
-public class Brain : ISaveObject
+public class Brain 
 {
-    SaveObjectData saveObject = new SaveObjectData();
-    [SaveValue(0)] public List<NeuronLayer> layers = new List<NeuronLayer>();
+
+ public List<NeuronLayer> layers = new List<NeuronLayer>();
     int totalWeightsCount = 0;
     int inputsCount = 0;
     private float fitness = 1;
@@ -299,23 +298,5 @@ public class Brain : ISaveObject
         return brain;
     }
 
-    public int GetID()
-    {
-       return saveObject.id;
-    }
 
-    public ISaveObject GetObject()
-    {
-      return this;
-    }
-
-    public void Save()
-    {
-
-    }
-
-    public void Load()
-    {
-        
-    }
 }

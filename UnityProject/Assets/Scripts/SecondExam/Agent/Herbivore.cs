@@ -35,7 +35,7 @@ namespace Miner.SecondExam.Agent
             float[] outputs = parameters[0] as float[];
             position = (Vector2)parameters[1];
             Vector2 nearFoodPos = (Vector2)parameters[2];
-            var onMove = parameters[3] as Action<Vector2[]>;
+            var onMove = parameters[3] as Action<Vector2>;
             Plant plant = parameters[4] as Plant;
             int gridSizeX = (int)parameters[5];
             int gridSizeY = (int)parameters[6];
@@ -69,7 +69,7 @@ namespace Miner.SecondExam.Agent
                 }
 
                 Vector2[] direction = new Vector2[movementPerTurn];
-                for (int i = 0; i < 3; i++)
+                for (int i = 0; i < movementPerTurn; i++)
                 {
                     direction[i] = GetDir(outputs[i + 1]);
                 }
@@ -78,7 +78,7 @@ namespace Miner.SecondExam.Agent
                 {
                     foreach (Vector2 dir in direction)
                     {
-                        onMove.Invoke(direction);
+                        onMove.Invoke(dir);
                         position += dir;
                         
                         if (position.X > gridSizeX)
@@ -98,7 +98,7 @@ namespace Miner.SecondExam.Agent
                         {
                             position.Y = 0;
                         }
-                        //Todo: Make a way to check the limit of the grid
+         
                     }
 
                     List<Vector2> newPositions = new List<Vector2>();
@@ -163,8 +163,6 @@ namespace Miner.SecondExam.Agent
                     {
                         if (plant.CanBeEaten())
                         {
-                            //TODO: Eat++
-                            //Fitness ++
                             plant.Eat();
                             onEaten(++counterEating);
                             brain.FitnessReward += 20;
@@ -225,6 +223,8 @@ namespace Miner.SecondExam.Agent
             position = (Vector2)parameters[1];
             nearEnemyPositions = parameters[2] as List<Vector2>;
             Action<Vector2> onMove = parameters[3] as Action<Vector2>;
+            int gridSizeX = (int)parameters[4];
+            int gridSizeY = (int)parameters[5];
             behaviour.AddMultiThreadBehaviour(0, () =>
             {
                 //Outputs:
@@ -266,7 +266,24 @@ namespace Miner.SecondExam.Agent
                     {
                         onMove.Invoke(dir);
                         position += dir;
-                        //Todo: Make a way to check the limit of the grid
+                        if (position.X > gridSizeX)
+                        {
+                            position.X = gridSizeX; 
+                        }
+                        else if (position.X < 0)
+                        {
+                            position.X = 0; 
+                        }
+
+                        if (position.Y >gridSizeY)
+                        {
+                            position.Y = gridSizeY;
+                        }
+                        else if (position.Y < 0)
+                        {
+                            position.Y = 0;
+                        }
+
                     }
 
                     float distanceFromEnemies = GetDistanceFrom(nearEnemyPositions);
@@ -389,7 +406,7 @@ namespace Miner.SecondExam.Agent
                 {
                     return new object[]
                     {
-                        eatBrain.outputs, position, GetNearestFood(), hasEatenFood, currentFood, maxFood,
+                        eatBrain.outputs, position, GetNearestFood().position, hasEatenFood, currentFood, maxFood,
                         onEatenFood = b => { hasEatenFood = b; }, onEat = a => currentFood = a, GetNearestFood(),
                     };
                 });
@@ -397,7 +414,7 @@ namespace Miner.SecondExam.Agent
                 onEnterParametes: () => new object[] { escapeBrain },
                 onTickParametes: () =>
                 {
-                    return new object[] { escapeBrain.outputs, position, GetNearEnemiesPositions(), onMove = MoveTo };
+                    return new object[] { escapeBrain.outputs, position, GetNearEnemiesPositions(), onMove = MoveTo ,base.populationManager.gridSizeX,populationManager.gridSizeY};
                 }
             );
             fsm.AddBehaviour<HerbivoreDeadState>(HeribovoreStates.Dead,
@@ -416,18 +433,33 @@ namespace Miner.SecondExam.Agent
 
         public override void DecideState(float[] outputs)
         {
-            if (outputs[0] > 0.0f)
+            int maxIndex = 2;
+            for (int i = 0; i < outputs.Length; i++)
             {
-                fsm.Transition(HeribovoreStates.Escape);
+                if (outputs[i] > outputs[maxIndex])
+                {
+                    maxIndex = i;
+                }
             }
-            else if (outputs[1] > 0.0f)
+
+            switch (maxIndex)
             {
-                fsm.Transition(HeribovoreStates.Move);
+                case 0:
+                    fsm.Transition(HeribovoreStates.Escape);
+                    Debug.Log("Decide to escape");
+                    break;
+                case 1:
+                    fsm.Transition(HeribovoreStates.Move);
+                    Debug.Log("Decide to Move");
+                    break;
+                case 2:
+                    fsm.Transition(HeribovoreStates.Eat);
+                    Debug.Log("Decide to Eat");
+                    break;
+                default:
+                    break;
             }
-            else if (outputs[2] > 0.0f)
-            {
-                fsm.Transition(HeribovoreStates.Eat);
-            }
+
         }
 
         public override void PreUpdate(float deltaTime)

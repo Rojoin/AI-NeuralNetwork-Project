@@ -30,7 +30,7 @@ public class SimulationSettings
 
     private void EndGeneration()
     {
-        throw new System.NotImplementedException();
+
     }
 }
 

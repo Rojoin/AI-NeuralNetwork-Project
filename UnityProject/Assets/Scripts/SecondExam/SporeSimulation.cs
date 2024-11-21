@@ -13,6 +13,8 @@ namespace Miner.SecondExam
 
     public class SporeSimulation : MonoBehaviour
     {
+        public string fileToLoad;
+        public string filePath = "/Saves/Genomes";
         public bool isSimulationActive = true;
         [Header("Meshes Settings")] public Mesh herbMesh;
         public Material herbMaterial;
@@ -89,6 +91,7 @@ namespace Miner.SecondExam
                 scavengerCount,
                 turnCount
             );
+            sporeManager.filepath = Application.dataPath + filePath;
         }
 
         void Update()
@@ -148,7 +151,12 @@ namespace Miner.SecondExam
                 Graphics.DrawMesh(scavMesh, worldPosition, UnityEngine.Quaternion.identity, scavMaterial, 0);
             }
         }
-
+[ContextMenu("Load Save")]
+        private void Load()
+        {
+            sporeManager.fileToLoad = Application.dataPath +filePath+ fileToLoad;
+            sporeManager.Load();
+        }
         private void OnDrawGizmos()
         {
             if (sporeManager == null) return;

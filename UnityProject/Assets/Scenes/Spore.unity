@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 0}
-  m_IndirectSpecularColor: {r: 0, g: 0, b: 0, a: 1}
+  m_IndirectSpecularColor: {r: 0.12731749, g: 0.13414757, b: 0.1210787, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -215,7 +215,7 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!1 &924764713
+--- !u!1 &701248633
 GameObject:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -223,95 +223,241 @@ GameObject:
   m_PrefabAsset: {fileID: 0}
   serializedVersion: 6
   m_Component:
-  - component: {fileID: 924764715}
-  - component: {fileID: 924764714}
+  - component: {fileID: 701248635}
+  - component: {fileID: 701248634}
   m_Layer: 0
-  m_Name: Directional Light
+  m_Name: GameObject
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!108 &924764714
-Light:
+--- !u!114 &701248634
+MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 924764713}
+  m_GameObject: {fileID: 701248633}
   m_Enabled: 1
-  serializedVersion: 10
-  m_Type: 1
-  m_Shape: 0
-  m_Color: {r: 1, g: 0.95686275, b: 0.8392157, a: 1}
-  m_Intensity: 1
-  m_Range: 10
-  m_SpotAngle: 30
-  m_InnerSpotAngle: 21.80208
-  m_CookieSize: 10
-  m_Shadows:
-    m_Type: 2
-    m_Resolution: -1
-    m_CustomResolution: -1
-    m_Strength: 1
-    m_Bias: 0.05
-    m_NormalBias: 0.4
-    m_NearPlane: 0.2
-    m_CullingMatrixOverride:
-      e00: 1
-      e01: 0
-      e02: 0
-      e03: 0
-      e10: 0
-      e11: 1
-      e12: 0
-      e13: 0
-      e20: 0
-      e21: 0
-      e22: 1
-      e23: 0
-      e30: 0
-      e31: 0
-      e32: 0
-      e33: 1
-    m_UseCullingMatrixOverride: 0
-  m_Cookie: {fileID: 0}
-  m_DrawHalo: 0
-  m_Flare: {fileID: 0}
-  m_RenderMode: 0
-  m_CullingMask:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  m_RenderingLayerMask: 1
-  m_Lightmapping: 4
-  m_LightShadowCasterMode: 0
-  m_AreaSize: {x: 1, y: 1}
-  m_BounceIntensity: 1
-  m_ColorTemperature: 6570
-  m_UseColorTemperature: 0
-  m_BoundingSphereOverride: {x: 0, y: 0, z: 0, w: 0}
-  m_UseBoundingSphereOverride: 0
-  m_UseViewFrustumForShadowCasterCull: 1
-  m_ShadowRadius: 0
-  m_ShadowAngle: 0
---- !u!4 &924764715
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 02b3a45f374246deb2e2c7501cc6b85a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  fileToLoad: 40.spore
+  filePath: /Saves/Genomes
+  isSimulationActive: 1
+  herbMesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+  herbMaterial: {fileID: 2100000, guid: 65b34bd0b696fd64c809daa8ff1aac63, type: 2}
+  plantMaterial: {fileID: 2100000, guid: 03ad6a4c3c0e64440b1d6cee74fc2a4f, type: 2}
+  carnMaterial: {fileID: 2100000, guid: fac0fef134876ce41b0b9813e789ca86, type: 2}
+  scavMaterial: {fileID: 2100000, guid: c87d469064dd9a94593bbbc79e413563, type: 2}
+  plantMesh: {fileID: 10208, guid: 0000000000000000e000000000000000, type: 0}
+  carnMesh: {fileID: 10207, guid: 0000000000000000e000000000000000, type: 0}
+  scavMesh: {fileID: 4300000, guid: 002e2a607f5b64c48be0b3b0d8b8bfdd, type: 3}
+  gridSizeX: 10
+  gridSizeY: 10
+  herbivoreCount: 10
+  carnivoreCount: 4
+  scavengerCount: 4
+  turnCount: 50
+  currentGeneration: 0
+  mutationChance: 0.5
+  mutationRate: 0.43
+  eliteCount: 4
+  sporeManager:
+    generation: 0
+    hervivoreCount: 30
+    carnivoreCount: 20
+    scavengerCount: 20
+    gridSizeX: 10
+    gridSizeY: 10
+    EliteCount: 4
+    MutationChance: 0.1
+    MutationRate: 0.01
+    turnCount: 100
+    herbMainBrains: []
+    herbEatBrains: []
+    herbMoveBrains: []
+    herbEscapeBrains: []
+    carnMainBrains: []
+    carnMoveBrains: []
+    carnEatBrains: []
+    scavMainBrains: []
+    scavFlokingBrains: []
+    HMainB:
+      totalFitness: 0
+      eliteCount: 5
+      mutationChance: 0
+      mutationRate: 0
+      brainStructure:
+        layers: []
+        FitnessReward: 0
+        FitnessMultiplier: 0
+        outputs: []
+        bias: 1
+        p: 0.5
+        inputs: []
+      generationStalled: 0
+      lastGenome: []
+      generationCount: 0
+    HEatB:
+      totalFitness: 0
+      eliteCount: 5
+      mutationChance: 0
+      mutationRate: 0
+      brainStructure:
+        layers: []
+        FitnessReward: 0
+        FitnessMultiplier: 0
+        outputs: []
+        bias: 1
+        p: 0.5
+        inputs: []
+      generationStalled: 0
+      lastGenome: []
+      generationCount: 0
+    HEscapeB:
+      totalFitness: 0
+      eliteCount: 5
+      mutationChance: 0
+      mutationRate: 0
+      brainStructure:
+        layers: []
+        FitnessReward: 0
+        FitnessMultiplier: 0
+        outputs: []
+        bias: 1
+        p: 0.5
+        inputs: []
+      generationStalled: 0
+      lastGenome: []
+      generationCount: 0
+    HMoveB:
+      totalFitness: 0
+      eliteCount: 5
+      mutationChance: 0
+      mutationRate: 0
+      brainStructure:
+        layers: []
+        FitnessReward: 0
+        FitnessMultiplier: 0
+        outputs: []
+        bias: 1
+        p: 0.5
+        inputs: []
+      generationStalled: 0
+      lastGenome: []
+      generationCount: 0
+    CMainB:
+      totalFitness: 0
+      eliteCount: 5
+      mutationChance: 0
+      mutationRate: 0
+      brainStructure:
+        layers: []
+        FitnessReward: 0
+        FitnessMultiplier: 0
+        outputs: []
+        bias: 1
+        p: 0.5
+        inputs: []
+      generationStalled: 0
+      lastGenome: []
+      generationCount: 0
+    CEatB:
+      totalFitness: 0
+      eliteCount: 5
+      mutationChance: 0
+      mutationRate: 0
+      brainStructure:
+        layers: []
+        FitnessReward: 0
+        FitnessMultiplier: 0
+        outputs: []
+        bias: 1
+        p: 0.5
+        inputs: []
+      generationStalled: 0
+      lastGenome: []
+      generationCount: 0
+    CMoveB:
+      totalFitness: 0
+      eliteCount: 5
+      mutationChance: 0
+      mutationRate: 0
+      brainStructure:
+        layers: []
+        FitnessReward: 0
+        FitnessMultiplier: 0
+        outputs: []
+        bias: 1
+        p: 0.5
+        inputs: []
+      generationStalled: 0
+      lastGenome: []
+      generationCount: 0
+    SMainB:
+      totalFitness: 0
+      eliteCount: 5
+      mutationChance: 0
+      mutationRate: 0
+      brainStructure:
+        layers: []
+        FitnessReward: 0
+        FitnessMultiplier: 0
+        outputs: []
+        bias: 1
+        p: 0.5
+        inputs: []
+      generationStalled: 0
+      lastGenome: []
+      generationCount: 0
+    SFlockB:
+      totalFitness: 0
+      eliteCount: 5
+      mutationChance: 0
+      mutationRate: 0
+      brainStructure:
+        layers: []
+        FitnessReward: 0
+        FitnessMultiplier: 0
+        outputs: []
+        bias: 1
+        p: 0.5
+        inputs: []
+      generationStalled: 0
+      lastGenome: []
+      generationCount: 0
+    fileToLoad: 
+    filepath: 
+    data: []
+    isActive: 0
+  simulationDeltaTime: 0.1
+  herbBias: 0.34
+  herbP: 0.17
+  carnBias: 0.5
+  carnP: 0.17
+  scavBias: 0.5
+  scavP: 0.28
+--- !u!4 &701248635
 Transform:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 924764713}
+  m_GameObject: {fileID: 701248633}
   serializedVersion: 2
-  m_LocalRotation: {x: 0.40821788, y: -0.23456968, z: 0.10938163, w: 0.8754261}
-  m_LocalPosition: {x: 0, y: 3, z: 0}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 4.8316545, y: 3.119562, z: 8.875071}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 50, y: -30, z: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0
   m_Roots:
   - {fileID: 639481717}
-  - {fileID: 924764715}
+  - {fileID: 701248635}

@@ -55,13 +55,16 @@ namespace Miner.SecondExam.Agent
         [SaveValue(11)] public GeneticAlgorithmData SMainB;
         [SaveValue(12)] public GeneticAlgorithmData SFlockB;
 
+        public string fileToLoad;
+        public string filepath;
+        private string filetype = "spore";
+        public List<GeneticAlgorithmData> data = new List<GeneticAlgorithmData>();
 
         public bool isActive;
         private Dictionary<uint, Brain> entities;
 
         public SporeManager()
         {
-            
         }
 
         public SporeManager(List<BrainData> herbBrainData, List<BrainData> carnivoreBrainData,
@@ -78,6 +81,7 @@ namespace Miner.SecondExam.Agent
             this.carnivoreCount = carnivoreCount;
             this.scavengerCount = scavengerCount;
 
+        
             const int SCAV_BRAINS = 2;
             const int CARN_BRAINS = 3;
             const int HERB_BRAINS = 4;
@@ -94,7 +98,7 @@ namespace Miner.SecondExam.Agent
             InitEntities();
             CreateNewGeneration();
             // SaveSystem.instance._saveSystem.AddObjectToSave(this);
-            SaveSystem.instance._saveSystem.AddObjectToSave(this);
+
         }
 
         public void Tick(float deltaTime)
@@ -229,6 +233,15 @@ namespace Miner.SecondExam.Agent
             CMoveB = new GeneticAlgorithmData(EliteCount, MutationChance, MutationRate, carnMoveBrains[0]);
             SMainB = new GeneticAlgorithmData(EliteCount, MutationChance, MutationRate, scavMainBrains[0]);
             SFlockB = new GeneticAlgorithmData(EliteCount, MutationChance, MutationRate, scavFlokingBrains[0]);
+            data.Add(HMainB);
+            data.Add(HEatB);
+            data.Add(HEscapeB);
+            data.Add(HMoveB);
+            data.Add(CMainB);
+            data.Add(CEatB);
+            data.Add(CMoveB);
+            data.Add(SMainB);
+            data.Add(SFlockB);
             for (int i = 0; i < hervivoreCount * 2; i++)
             {
                 plants.Add(new Plant());
@@ -252,10 +265,16 @@ namespace Miner.SecondExam.Agent
 
         private void EpochAllBrains()
         {
+            foreach (var geneticAlgorithmData in data)
+            {
+                geneticAlgorithmData.generationCount = generation;
+            }
             EpochHerbivore();
             EpochCarnivore();
             EpochScavenger();
 
+            string file = $"{filepath}{generation}.{filetype}";
+            GeneticAlgorithmDataBatchHandler.SaveBatch(data, file);
             foreach (KeyValuePair<uint, Brain> entity in entities)
             {
                 HiddenLayerComponent inputComponent = ECSManager.GetComponent<HiddenLayerComponent>(entity.Key);
@@ -348,6 +367,7 @@ namespace Miner.SecondExam.Agent
 
         private void RestoreSave()
         {
+            generation = HMainB.generationCount;
             RestoreBrainsData(herbMainBrains, HMainB);
             RestoreBrainsData(herbMoveBrains, HMoveB);
             RestoreBrainsData(herbEatBrains, HEatB);
@@ -365,7 +385,6 @@ namespace Miner.SecondExam.Agent
             {
                 // Brain brain =;
                 brains[i] = new Brain(info.brainStructure);
-                // brain.CopyStructureFrom(info.brainStructure);
                 brains[i].SetWeights(info.lastGenome[i].genome);
             }
         }
@@ -455,6 +474,7 @@ namespace Miner.SecondExam.Agent
 
         public void Load()
         {
+            data = GeneticAlgorithmDataBatchHandler.LoadBatch(fileToLoad);
             RestoreSave();
             foreach (var entity in entities)
             {
