@@ -42,13 +42,24 @@ public class GeneticAlgorithmData
     public Brain brainStructure;
     public readonly int maxStalledGenerationsUntilEvolve = 5;
     public int generationStalled = 0;
-
-    public GeneticAlgorithmData(int eliteCount, float mutationChance, float mutationRate, Brain brain)
+    
+    public GeneticAlgorithmData(int eliteCount, float mutationChance, float mutationRate, Brain brain,
+        int maxStalledGenerationsUntilEvolve = 5)
     {
         this.eliteCount = eliteCount;
         this.mutationChance = mutationChance;
         this.mutationRate = mutationRate;
         this.brainStructure = brain;
+        this.maxStalledGenerationsUntilEvolve = maxStalledGenerationsUntilEvolve;
+    }
+
+    public GeneticAlgorithmData(GeneticAlgorithmData data)
+    {
+        this.eliteCount = data.eliteCount;
+        this.mutationChance = data.mutationChance;
+        this.mutationRate = data.mutationRate;
+        this.brainStructure = data.brainStructure;
+        this.maxStalledGenerationsUntilEvolve = data.maxStalledGenerationsUntilEvolve;
     }
 }
 
@@ -68,7 +79,7 @@ public static class GeneticAlgorithm
     private static int newNeuronToAddQuantity;
     private static int randomLayer = 0;
     private static List<NeuronLayer> neuronLayers;
-    private static int neuronPos = 0;
+
 
     public static Genome[] GetRandomGenomes(int count, int genesCount)
     {
@@ -94,6 +105,7 @@ public static class GeneticAlgorithm
         population.AddRange(oldGenomes);
         population.Sort(HandleComparison);
 
+        GeneticAlgorithmData backUpData = new(data);
         foreach (Genome g in population)
         {
             currentTotalFitness += g.fitness;
@@ -102,6 +114,8 @@ public static class GeneticAlgorithm
         if (forceEvolve)
         {
             data.generationStalled = 0;
+            data.mutationChance *= 1.2f;
+            data.mutationRate *= 1.2f;
             evolutionType = (EvolutionType)Random.Range(1, Enum.GetValues(typeof(EvolutionType)).Length);
         }
         else if (currentTotalFitness < data.totalFitness)
@@ -110,8 +124,7 @@ public static class GeneticAlgorithm
             if (data.generationStalled >= data.maxStalledGenerationsUntilEvolve)
             {
                 data.generationStalled = 0;
-                //evolutionType = EvolutionType.AddNeurons;
-                 evolutionType = (EvolutionType)Random.Range(1, Enum.GetValues(typeof(EvolutionType)).Length);
+                evolutionType = (EvolutionType)Random.Range(1, Enum.GetValues(typeof(EvolutionType)).Length);
             }
         }
 
@@ -119,7 +132,7 @@ public static class GeneticAlgorithm
         CalculateNeuronsToAdd(data.brainStructure);
 
 
-        // SelectElite(evolutionType, data.eliteCount);
+        SelectElite(evolutionType, data.eliteCount);
         while (newPopulation.Count < population.Count)
         {
             Crossover(data, evolutionType);
@@ -140,7 +153,8 @@ public static class GeneticAlgorithm
                 throw new ArgumentOutOfRangeException(nameof(evolutionType), evolutionType, null);
         }
 
-
+        data.mutationChance = backUpData.mutationChance;
+        data.mutationRate = backUpData.mutationRate;
         return newPopulation.ToArray();
     }
 
@@ -149,25 +163,6 @@ public static class GeneticAlgorithm
         newNeuronToAddQuantity = Random.Range(1, 3);
         randomLayer = Random.Range(1, brain.layers.Count - 1);
         neuronLayers = brain.layers;
-        neuronPos = 0;
-
-        for (int i = 0; i < neuronLayers.Count; i++)
-        {
-            if (i +1 < randomLayer)
-            {
-                neuronPos += neuronLayers[i].totalWeights;
-            }
-            // else if (i == randomLayer)
-            // {
-            //     int neuronCount = 0;
-            //     while (neuronCount < neuronPositionToAdd)
-            //     {
-            //         neuronCount++;
-            //     }
-            //
-            //     neuronPos += neuronCount;
-            // }
-        }
     }
 
     private static bool ShouldEvolve()
@@ -283,8 +278,8 @@ public static class GeneticAlgorithm
         int nextLayerOutputs = neuronLayers[randomLayer + 1].OutputsCount;
         // int newNeuronCount = child.genome.Length + newNeuronToAddQuantity * previousLayerOutputs +
         //                      nextLayerOutputs * newNeuronToAddQuantity;
-        
-        int newNeuronCount = child.genome.Length 
+
+        int newNeuronCount = child.genome.Length
                              + newNeuronToAddQuantity * neuronLayers[randomLayer].InputsCount +
                              nextLayerOutputs * newNeuronToAddQuantity;
         float[] newWeight = new float[newNeuronCount];
@@ -295,17 +290,19 @@ public static class GeneticAlgorithm
         int count = 0;
         int originalWeightsCount = 0;
 
-    
-        for (int i = 0; i < randomLayer; i++) {
-            for (int w = 0; w < neuronLayers[i].totalWeights; w++) {
+
+        for (int i = 0; i < randomLayer; i++)
+        {
+            for (int w = 0; w < neuronLayers[i].totalWeights; w++)
+            {
                 CopyExistingWeights(ref count, ref originalWeightsCount);
             }
         }
-  
 
-        for (int i = 0; i < neuronLayers[randomLayer].InputsCount ; i++)
+
+        for (int i = 0; i < neuronLayers[randomLayer].InputsCount; i++)
         {
-            for (int j = 0; j < previousLayerOutputs+ newNeuronToAddQuantity; j++)
+            for (int j = 0; j < previousLayerOutputs + newNeuronToAddQuantity; j++)
             {
                 if (j < previousLayerOutputs)
                 {
@@ -316,15 +313,13 @@ public static class GeneticAlgorithm
                     CreateNewWeights(ref count);
                 }
             }
-          
         }
 
-        for (int i = 0; i < previousLayerOutputs+ newNeuronToAddQuantity; i++)
+        for (int i = 0; i < previousLayerOutputs + newNeuronToAddQuantity; i++)
         {
-
             for (int j = 0; j < nextLayerOutputs; j++)
             {
-                if (i <previousLayerOutputs)
+                if (i < previousLayerOutputs)
                 {
                     CopyExistingWeights(ref count, ref originalWeightsCount);
                 }
@@ -334,17 +329,16 @@ public static class GeneticAlgorithm
                 }
             }
         }
+
         while (count < newNeuronCount)
         {
             CopyExistingWeights(ref count, ref originalWeightsCount);
         }
-     
+
         child.genome = newWeight;
+        return;
 
 
-      
-
-        //Layer
         void CopyExistingWeights(ref int count, ref int originalWeightsCount)
         {
             newWeight[count] = child.genome[originalWeightsCount];
@@ -357,7 +351,6 @@ public static class GeneticAlgorithm
             newWeight[count] = Random.Range(-1.0f, 1.0f);
             count++;
         }
-
     }
 
     static void EvolveChildLayer(Genome child)
@@ -385,7 +378,6 @@ public static class GeneticAlgorithm
 
         for (int layerIndex = 0; layerIndex < randomLayer; layerIndex++)
         {
-            //weightsBeforeInsertion += neuronLayers[layerIndex].inputsCount * neuronLayers[layerIndex + 1].inputsCount;
             weightsBeforeInsertion += neuronLayers[layerIndex].totalWeights;
         }
 
@@ -422,8 +414,9 @@ public static class GeneticAlgorithm
 
 
         child.genome = newWeight;
+        return;
 
-        //Layer
+
         void CopyExistingWeights(ref int count, ref int originalWeightsCount)
         {
             newWeight[count] = child.genome[originalWeightsCount];

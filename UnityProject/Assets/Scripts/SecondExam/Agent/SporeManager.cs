@@ -36,6 +36,7 @@ namespace Miner.SecondExam.Agent
         private List<Brain> scavFlokingBrains = new List<Brain>();
         private bool isActive;
         private Dictionary<uint, Brain> entities;
+        private Dictionary<List<Brain>, GeneticAlgorithmData> geneticInfo;
 
         public SporeManager()
         {
@@ -67,7 +68,6 @@ namespace Miner.SecondExam.Agent
 
         private void CreateNewGeneration()
         {
-            
             throw new System.NotImplementedException();
         }
 
@@ -105,7 +105,10 @@ namespace Miner.SecondExam.Agent
                 herbEscapeBrains.Add(herbis[i].escapeBrain);
                 herbMoveBrains.Add(herbis[i].moveBrain);
             }
-
+            geneticInfo.Add(herbMainBrains,new GeneticAlgorithmData(EliteCount,MutationChance,MutationRate,herbMainBrains[0]));
+            geneticInfo.Add(herbEatBrains,new GeneticAlgorithmData(EliteCount,MutationChance,MutationRate,herbEatBrains[0]));
+            geneticInfo.Add(herbEscapeBrains,new GeneticAlgorithmData(EliteCount,MutationChance,MutationRate,herbEscapeBrains[0]));
+            geneticInfo.Add(herbMoveBrains,new GeneticAlgorithmData(EliteCount,MutationChance,MutationRate,herbMoveBrains[0]));
             for (int i = 0; i < carnivoreCount; i++)
             {
                 carnivores.Add(new Carnivore(this));
@@ -113,13 +116,17 @@ namespace Miner.SecondExam.Agent
                 carnEatBrains.Add(carnivores[i].eatBrain);
                 carnMoveBrains.Add(carnivores[i].moveBrain);
             }
-
+            geneticInfo.Add(carnMainBrains,new GeneticAlgorithmData(EliteCount,MutationChance,MutationRate,carnMainBrains[0]));
+            geneticInfo.Add(carnEatBrains ,new GeneticAlgorithmData(EliteCount,MutationChance,MutationRate,carnEatBrains[0]));
+            geneticInfo.Add(carnMoveBrains,new GeneticAlgorithmData(EliteCount,MutationChance,MutationRate,carnMoveBrains[0]));
             for (int i = 0; i < scavengerCount; i++)
             {
                 scavengers.Add(new Scavenger(this));
                 scavMainBrains.Add(scavengers[i].mainBrain);
                 scavFlokingBrains.Add(scavengers[i].flockingBrain);
             }
+            geneticInfo.Add(scavMainBrains,new GeneticAlgorithmData(EliteCount,MutationChance,MutationRate,scavMainBrains[0]));
+            geneticInfo.Add(scavFlokingBrains ,new GeneticAlgorithmData(EliteCount,MutationChance,MutationRate,scavFlokingBrains[0]));
         }
 
         private void CreateEntity(Brain brain)
@@ -162,9 +169,9 @@ namespace Miner.SecondExam.Agent
                     scavFlockingBrain.Add(scav.flockingBrain);
                 }
             }
-
-            EpochLocal(scavMainBrain);
-            EpochLocal(scavFlockingBrain);
+            bool isGenerationDead = scavMainBrain.Count <= 1;
+            EpochLocal(scavMainBrain,isGenerationDead);
+            EpochLocal(scavFlockingBrain,isGenerationDead);
         }
 
         void EpochCarnivore()
@@ -182,9 +189,10 @@ namespace Miner.SecondExam.Agent
                 }
             }
 
-            EpochLocal(carnivoreMainBrain);
-            EpochLocal(carnivoreEatBrain);
-            EpochLocal(carnivoreMoveBrain);
+            bool isGenerationDead = carnivoreMainBrain.Count <= 1;
+            EpochLocal(carnivoreMainBrain, isGenerationDead);
+            EpochLocal(carnivoreEatBrain, isGenerationDead);
+            EpochLocal(carnivoreMoveBrain, isGenerationDead);
         }
 
         private void EpochHerbivore()
@@ -204,15 +212,17 @@ namespace Miner.SecondExam.Agent
                 }
             }
 
-            EpochLocal(herbivoresMainBrain);
-            EpochLocal(herbivoresMoveBrain);
-            EpochLocal(herbivoresEatBrain);
-            EpochLocal(herbivoresEscapeBrain);
+            bool isGenerationDead = herbivoresMainBrain.Count <= 1;
+
+            EpochLocal(herbivoresMainBrain, isGenerationDead);
+            EpochLocal(herbivoresMoveBrain, isGenerationDead);
+            EpochLocal(herbivoresEatBrain, isGenerationDead);
+            EpochLocal(herbivoresEscapeBrain, isGenerationDead);
         }
 
-        private void EpochLocal(List<Brain> brains)
+        private void EpochLocal(List<Brain> brains, bool force)
         {
-            Genome[] newGenomes = this.Epoch(GetGenomes(brains));
+            Genome[] newGenomes = GeneticAlgorithm.Epoch(GetGenomes(brains), geneticInfo[brains], force);
 
             for (int i = 0; i < brains.Count; i++)
             {
@@ -221,7 +231,7 @@ namespace Miner.SecondExam.Agent
             }
         }
 
-        private Genome[] GetGenomes(List<Brain> brains)
+        private static Genome[] GetGenomes(List<Brain> brains)
         {
             List<Genome> genomes = new List<Genome>();
             foreach (var brain in brains)
@@ -235,108 +245,6 @@ namespace Miner.SecondExam.Agent
             }
 
             return genomes.ToArray();
-        }
-
-
-        public Genome[] Epoch(Genome[] oldGenomes)
-        {
-            float totalFitness = 0;
-            List<Genome> population = new List<Genome>();
-            List<Genome> newPopulation = new List<Genome>();
-
-            population.AddRange(oldGenomes);
-
-            foreach (Genome g in population)
-            {
-                totalFitness += g.fitness;
-            }
-
-            int eliteCount = 5;
-            for (int i = 0; i < eliteCount && newPopulation.Count < population.Count; i++)
-            {
-                newPopulation.Add(population[i]);
-            }
-
-            return newPopulation.ToArray();
-        }
-
-        public Genome RouletteSelection(float totalFitness, List<Genome> population)
-        {
-            float rnd = Random.Range(0, Mathf.Max(totalFitness, 0));
-
-            float fitness = 0;
-
-            for (int i = 0; i < population.Count; i++)
-            {
-                fitness += Mathf.Max(population[i].fitness, 0);
-                if (fitness >= rnd)
-                    return population[i];
-            }
-
-            return null;
-        }
-
-        void Crossover(List<Genome> oldPopulation, List<Genome> newPopulation, float totalFitness, float mutationRate,
-            float mutationChance)
-        {
-            Genome mom = RouletteSelection(totalFitness, oldPopulation);
-            Genome dad = RouletteSelection(totalFitness, oldPopulation);
-
-            Genome child1;
-            Genome child2;
-
-            Crossover(mom, dad, mutationChance, mutationRate, out child1, out child2);
-
-            newPopulation.Add(child1);
-            newPopulation.Add(child2);
-        }
-
-        void Crossover(Genome mom, Genome dad, float mutationChance, float mutationRate, out Genome child1,
-            out Genome child2)
-        {
-            child1 = new Genome();
-            child2 = new Genome();
-
-            child1.genome = new float[mom.genome.Length];
-            child2.genome = new float[mom.genome.Length];
-
-            int pivot = Random.Range(0, mom.genome.Length);
-
-            for (int i = 0; i < pivot; i++)
-            {
-                child1.genome[i] = mom.genome[i];
-
-                if (ShouldMutate(mutationChance))
-                    child1.genome[i] += Random.Range(-mutationRate, mutationRate);
-
-                child2.genome[i] = dad.genome[i];
-
-                if (ShouldMutate(mutationChance))
-                    child2.genome[i] += Random.Range(-mutationRate, mutationRate);
-            }
-
-            for (int i = pivot; i < mom.genome.Length; i++)
-            {
-                child2.genome[i] = mom.genome[i];
-
-                if (ShouldMutate(mutationChance))
-                    child2.genome[i] += Random.Range(-mutationRate, mutationRate);
-
-                child1.genome[i] = dad.genome[i];
-
-                if (ShouldMutate(mutationChance))
-                    child1.genome[i] += Random.Range(-mutationRate, mutationRate);
-            }
-        }
-
-        bool ShouldMutate(float mutationChance)
-        {
-            return Random.Range(0.0f, 1.0f) < mutationChance;
-        }
-
-        int HandleComparison(Genome x, Genome y)
-        {
-            return x.fitness > y.fitness ? 1 : x.fitness < y.fitness ? -1 : 0;
         }
 
         #endregion
