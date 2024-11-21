@@ -53,8 +53,6 @@ public class CarnivoreMoveState : SporeMoveState
             {
                 onMove?.Invoke(dir);
                 position += dir;
-                Debug.Log($"I wanted to move to {dir}");
-                //Todo: Make a way to check the limit of the grid
             }
 
             List<Vector2> newPositions = new List<Vector2> { nearFoodPos };

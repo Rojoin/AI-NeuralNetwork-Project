@@ -2,11 +2,14 @@
 using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
+using RojoinSaveSystem;
+using RojoinSaveSystem.Attributes;
 
 [System.Serializable]
-public class Brain
+public class Brain : ISaveObject
 {
-    public List<NeuronLayer> layers = new List<NeuronLayer>();
+    SaveObjectData saveObject = new SaveObjectData();
+    [SaveValue(0)] public List<NeuronLayer> layers = new List<NeuronLayer>();
     int totalWeightsCount = 0;
     int inputsCount = 0;
     private float fitness = 1;
@@ -28,6 +31,13 @@ public class Brain
     {
     }
 
+    public Brain(Brain brain)
+    {
+        bias = brain.bias;
+        layers = layers;
+        totalWeightsCount = brain.totalWeightsCount;
+    }
+
     public void CopyStructureFrom(Brain brain)
     {
         layers = brain.layers;
@@ -35,7 +45,11 @@ public class Brain
 
     public void ApplyFitness()
     {
-        fitness *= FitnessReward * FitnessMultiplier > 0 ? FitnessMultiplier : 0;
+        fitness *= FitnessReward * FitnessMultiplier > 0 ?FitnessReward+  FitnessMultiplier : 0;
+    }
+    public void DestroyFitness()
+    {
+        fitness *= 0;
     }
 
     public bool AddNeuronLayer(int neuronsCount, float bias, float p)
@@ -283,5 +297,25 @@ public class Brain
         brain.AddNeuronLayer(OutputsCount, Bias, P);
 
         return brain;
+    }
+
+    public int GetID()
+    {
+       return saveObject.id;
+    }
+
+    public ISaveObject GetObject()
+    {
+      return this;
+    }
+
+    public void Save()
+    {
+
+    }
+
+    public void Load()
+    {
+        
     }
 }

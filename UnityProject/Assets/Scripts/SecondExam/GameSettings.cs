@@ -32,4 +32,9 @@ public class GameSettings : ISaveObject
     public void Save()
     {
     }
+
+    public void Load()
+    {
+        
+    }
 }

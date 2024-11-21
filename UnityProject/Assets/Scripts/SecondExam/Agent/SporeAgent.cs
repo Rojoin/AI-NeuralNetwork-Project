@@ -68,6 +68,7 @@ namespace Miner.SecondExam.Agent
     {
         public Vector2 position;
     }
+    [System.Serializable]
     public abstract class SporeAgent<AgentStates,AgentFlags>: SporeAgent where AgentStates :Enum  where AgentFlags : Enum 
     {
         protected SporeManager populationManager;

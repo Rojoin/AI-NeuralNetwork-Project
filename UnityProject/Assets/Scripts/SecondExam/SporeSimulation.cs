@@ -1,4 +1,5 @@
-﻿using Miner.SecondExam.Agent;
+﻿using System;
+using Miner.SecondExam.Agent;
 using Unity.Mathematics;
 using UnityEngine;
 using UnityEngine.Serialization;
@@ -33,24 +34,25 @@ namespace Miner.SecondExam
         public float mutationRate = 0.01f;
         public int eliteCount = 4;
 
-        private SporeManager sporeManager;
+       [SerializeField] private SporeManager sporeManager;
         public float simulationDeltaTime = 0.1f; // Adjust for simulation speed
         private float timer = 0;
-        [Header("BrainConfigs")] public float herbBias = 0.5f;
+        [Header("BrainConfigs")] 
+        public float herbBias = 0.5f;
         public float herbP = 0.5f;
-        public BrainData mainHerb;
-        public BrainData moveBrain;
-        public BrainData eatBrain;
-        public BrainData escapeBrain;
+        private BrainData mainHerb;
+        private BrainData moveBrain;
+        private BrainData eatBrain;
+        private BrainData escapeBrain;
         public float carnBias = 0.5f;
         public float carnP = 0.5f;
-        public BrainData mainCarn;
-        public BrainData moveCarn;
-        public BrainData eatCarn;
+         private BrainData mainCarn;
+         private BrainData moveCarn;
+         private BrainData eatCarn;
         public float scavBias = 0.5f;
         public float scavP = 0.5f;
-        public BrainData mainScav;
-        public BrainData flockScav;
+         private BrainData mainScav;
+         private BrainData flockScav;
 
 
         void Start()

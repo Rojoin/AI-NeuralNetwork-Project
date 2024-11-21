@@ -1,7 +1,8 @@
 ﻿using System;
 using UnityEngine;
 using System.Collections;
-using System.Collections.Generic;
+using System.Collections.Generic;using RojoinSaveSystem;
+using RojoinSaveSystem.Attributes;
 using Random = UnityEngine.Random;
 
 [System.Serializable]
@@ -33,16 +34,24 @@ public class Genome
 }
 
 [System.Serializable]
-public class GeneticAlgorithmData
+public class GeneticAlgorithmData: ISaveObject
 {
-    public float totalFitness = 0;
+    public SaveObjectData data = new SaveObjectData();
+   [SaveValue(0)] public float totalFitness = 0;
     public int eliteCount = 0;
     public float mutationChance = 0.0f;
     public float mutationRate = 0.0f;
-    public Brain brainStructure;
+    [SaveValue(1)]  public Brain brainStructure;
     public readonly int maxStalledGenerationsUntilEvolve = 5;
     public int generationStalled = 0;
-    
+    [SaveValue(2)]   public Genome[] lastGenome;
+
+    public GeneticAlgorithmData()
+    {
+        eliteCount = 5;
+        float mutationChance = 0.2f;
+        float mutationRate = 0.4f;
+    }
     public GeneticAlgorithmData(int eliteCount, float mutationChance, float mutationRate, Brain brain,
         int maxStalledGenerationsUntilEvolve = 5)
     {
@@ -51,6 +60,7 @@ public class GeneticAlgorithmData
         this.mutationRate = mutationRate;
         this.brainStructure = brain;
         this.maxStalledGenerationsUntilEvolve = maxStalledGenerationsUntilEvolve;
+        SaveSystem.instance._saveSystem.AddObjectToSave(this);
     }
 
     public GeneticAlgorithmData(GeneticAlgorithmData data)
@@ -60,6 +70,26 @@ public class GeneticAlgorithmData
         this.mutationRate = data.mutationRate;
         this.brainStructure = data.brainStructure;
         this.maxStalledGenerationsUntilEvolve = data.maxStalledGenerationsUntilEvolve;
+    }
+
+    public int GetID()
+    {
+        return data.id;
+    }
+
+    public ISaveObject GetObject()
+    {
+        return this;
+    }
+
+    public void Save()
+    {
+       
+    }
+
+    public void Load()
+    {
+        
     }
 }
 
@@ -114,8 +144,8 @@ public static class GeneticAlgorithm
         if (forceEvolve)
         {
             data.generationStalled = 0;
-            data.mutationChance *= 1.2f;
-            data.mutationRate *= 1.2f;
+            data.mutationChance *= 2.8f;
+            data.mutationRate *= 2.8f;
             evolutionType = (EvolutionType)Random.Range(1, Enum.GetValues(typeof(EvolutionType)).Length);
         }
         else if (currentTotalFitness < data.totalFitness)
@@ -132,7 +162,7 @@ public static class GeneticAlgorithm
         CalculateNeuronsToAdd(data.brainStructure);
 
 
-        SelectElite(evolutionType, data.eliteCount);
+         SelectElite(evolutionType, data.eliteCount);
         while (newPopulation.Count < population.Count)
         {
             Crossover(data, evolutionType);
@@ -175,7 +205,7 @@ public static class GeneticAlgorithm
                 case EvolutionType.None:
                     break;
                 case EvolutionType.AddNeurons:
-                    EvolveChildNeurons(population[i]);
+                     EvolveChildNeurons(population[i]);
                     break;
                 case EvolutionType.AddLayer:
                     EvolveChildLayer(population[i]);
@@ -246,8 +276,8 @@ public static class GeneticAlgorithm
             case EvolutionType.None:
                 break;
             case EvolutionType.AddNeurons:
-                EvolveChildNeurons(child1);
-                EvolveChildNeurons(child2);
+               EvolveChildNeurons(child1);
+               EvolveChildNeurons(child2);
                 break;
             case EvolutionType.AddLayer:
                 EvolveChildLayer(child1);
