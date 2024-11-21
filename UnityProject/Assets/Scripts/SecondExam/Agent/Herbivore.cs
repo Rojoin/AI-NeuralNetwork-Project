@@ -37,6 +37,8 @@ namespace Miner.SecondExam.Agent
             Vector2 nearFoodPos = (Vector2)parameters[2];
             var onMove = parameters[3] as Action<Vector2[]>;
             Plant plant = parameters[4] as Plant;
+            int gridSizeX = (int)parameters[5];
+            int gridSizeY = (int)parameters[6];
             behaviour.AddMultiThreadBehaviour(0, () =>
             {
                 //Outputs:
@@ -78,6 +80,24 @@ namespace Miner.SecondExam.Agent
                     {
                         onMove.Invoke(direction);
                         position += dir;
+                        
+                        if (position.X > gridSizeX)
+                        {
+                            position.X = gridSizeX; 
+                        }
+                        else if (position.X < 0)
+                        {
+                            position.X = 0; 
+                        }
+
+                        if (position.Y >gridSizeY)
+                        {
+                            position.Y = gridSizeY;
+                        }
+                        else if (position.Y < 0)
+                        {
+                            position.Y = 0;
+                        }
                         //Todo: Make a way to check the limit of the grid
                     }
 
@@ -342,12 +362,16 @@ namespace Miner.SecondExam.Agent
         int currentFood = 0;
         public bool hasEatenFood = false;
         private int maxMovementPerTurn = 3;
-        public Brain moveBrain = new Brain();
-        public Brain escapeBrain = new Brain();
-        public Brain eatBrain = new Brain();
+        public Brain moveBrain;
+        public Brain escapeBrain;
+        public Brain eatBrain;
 
-        public Herbivore(SporeManager populationManager) : base(populationManager)
+        public Herbivore(SporeManager populationManager, Brain main, Brain moveBrain, Brain escapeBrain, Brain eatBrain)
+            : base(populationManager, main)
         {
+            this.moveBrain = moveBrain;
+            this.eatBrain = eatBrain;
+            this.escapeBrain = escapeBrain;
             Action<Vector2> onMove;
             Action<bool> onEatenFood;
             Action<int> onEat;
@@ -356,7 +380,7 @@ namespace Miner.SecondExam.Agent
                 onTickParametes: () =>
                 {
                     return new object[]
-                        { moveBrain.outputs, position, GetNearestFoodPosition(), onMove = MoveTo, GetNearestFood() };
+                        { moveBrain.outputs, position, GetNearestFoodPosition(), onMove = MoveTo, GetNearestFood(), populationManager.gridSizeX, populationManager.gridSizeY };
                 });
             fsm.AddBehaviour<HerbivoreEatState>(HeribovoreStates.Eat,
                 onEnterParametes: () => { return new object[] { eatBrain }; },
@@ -386,6 +410,7 @@ namespace Miner.SecondExam.Agent
             fsm.SetTransition(HeribovoreStates.Eat, HerbivoreFlags.ToMove, HeribovoreStates.Move);
             fsm.SetTransition(HeribovoreStates.Eat, HerbivoreFlags.ToEscape, HeribovoreStates.Escape);
             fsm.SetTransition(HeribovoreStates.Dead, HerbivoreFlags.ToCorpse, HeribovoreStates.Corpse);
+            fsm.ForceState(HeribovoreStates.Move);
         }
 
         public override void DecideState(float[] outputs)
@@ -435,11 +460,38 @@ namespace Miner.SecondExam.Agent
         public override void MoveTo(Vector2 dir)
         {
             position += dir;
+            if (position.X > populationManager.gridSizeX)
+            {
+                position.X = populationManager.gridSizeX; 
+            }
+            else if (position.X < 0)
+            {
+                position.X = 0; 
+            }
+
+            if (position.Y >populationManager.gridSizeY)
+            {
+                position.Y = populationManager.gridSizeY;
+            }
+            else if (position.Y < 0)
+            {
+                position.Y = 0;
+            }
+        }
+
+        public override void GiveFitnessToMain()
+        {
+            mainBrain.FitnessMultiplier = 1.0f;
+            mainBrain.FitnessReward = 0f;
+            mainBrain.FitnessReward += eatBrain.FitnessReward + moveBrain.FitnessReward + escapeBrain.FitnessReward;
+            mainBrain.FitnessMultiplier += eatBrain.FitnessMultiplier + moveBrain.FitnessMultiplier + escapeBrain.FitnessMultiplier;
+            
+            mainBrain.ApplyFitness();
         }
 
         public List<Vector2> GetNearEnemiesPositions()
         {
-            throw new NotImplementedException();
+            return populationManager.GetNearCarnivores(position);
         }
 
         public void ReceiveDamage()
@@ -449,6 +501,25 @@ namespace Miner.SecondExam.Agent
             {
                 fsm.ForceState(HeribovoreStates.Dead);
             }
+        }
+
+        public void Reset(Vector2 position)
+        {
+            mainBrain.FitnessMultiplier = 1.0f;
+            mainBrain.FitnessReward = 0f;
+            eatBrain.FitnessMultiplier = 1.0f;
+            eatBrain.FitnessReward = 0f;
+            moveBrain.FitnessMultiplier = 1.0f;
+            moveBrain.FitnessReward = 0f;
+            escapeBrain.FitnessMultiplier = 1.0f;
+            escapeBrain.FitnessReward = 0f;
+            
+            
+            lives = 3;
+            currentFood = 0;
+            hasEatenFood = false;
+            this.position = position;
+            fsm.ForceState(HeribovoreStates.Move);
         }
 
         public bool CanBeEaten()
@@ -464,7 +535,7 @@ namespace Miner.SecondExam.Agent
 
         public Plant GetNearestFood()
         {
-           return populationManager.GetNearPlant(position);
+            return populationManager.GetNearPlant(position);
         }
 
         public Vector2 GetNearestFoodPosition()
@@ -494,6 +565,13 @@ namespace Miner.SecondExam.Agent
         public bool CanBeEaten()
         {
             return lives > 0;
+        }
+
+        public void Reset(Vector2 position)
+        {
+            this.position = position;
+            int lives = 5;
+            isAvailable = true;
         }
     }
 }

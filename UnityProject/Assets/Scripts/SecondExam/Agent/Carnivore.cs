@@ -167,8 +167,11 @@ public class Carnivore : SporeAgent<CarnivoreStates, CarnivoreFlags>
     int maxEating = 3;
     public bool hasEatenEnoughFood = false;
 
-    public Carnivore(SporeManager populationManager) : base(populationManager)
+
+    public Carnivore(SporeManager populationManager,Brain main,Brain move,Brain eat) : base(populationManager,main)
     {
+        moveBrain = move;
+        eatBrain = eat;
         Action<bool> onHasEantenEnoughFood;
         Action<Vector2> onMove;
         Action<int> onEaten;
@@ -199,7 +202,20 @@ public class Carnivore : SporeAgent<CarnivoreStates, CarnivoreFlags>
         fsm.SetTransition(CarnivoreStates.Move, CarnivoreFlags.ToEat, CarnivoreStates.Eat);
         fsm.ForceState(CarnivoreStates.Move);
     }
-
+    public void Reset(Vector2 position)
+    {
+        mainBrain.FitnessMultiplier = 1.0f;
+        mainBrain.FitnessReward = 0f;
+        eatBrain.FitnessMultiplier = 1.0f;
+        eatBrain.FitnessReward = 0f;
+        moveBrain.FitnessMultiplier = 1.0f;
+        moveBrain.FitnessReward = 0f;
+        
+        counterEating = 0;
+        hasEatenEnoughFood = false;
+        this.position = position;
+        fsm.ForceState(CarnivoreStates.Move);
+    }
     public override void DecideState(float[] outputs)
     {
         if (outputs[0] > 0.0f)
@@ -241,5 +257,13 @@ public class Carnivore : SporeAgent<CarnivoreStates, CarnivoreFlags>
 
     public override void MoveTo(Vector2 dir)
     {
+    }
+
+    public override void GiveFitnessToMain()
+    {
+        mainBrain.FitnessMultiplier = 1.0f;
+        mainBrain.FitnessReward = 0f;
+        mainBrain.FitnessReward = eatBrain.FitnessReward + moveBrain.FitnessReward;
+        mainBrain.FitnessMultiplier += eatBrain.FitnessMultiplier + moveBrain.FitnessMultiplier;
     }
 }

@@ -1,7 +1,10 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using RojoinSaveSystem;
 using RojoinSaveSystem.Attributes;
 using UnityEngine;
+using Random = System.Random;
 using Vector2 = System.Numerics.Vector2;
 
 namespace Miner.SecondExam.Agent
@@ -34,16 +37,43 @@ namespace Miner.SecondExam.Agent
         private List<Brain> carnEatBrains = new List<Brain>();
         private List<Brain> scavMainBrains = new List<Brain>();
         private List<Brain> scavFlokingBrains = new List<Brain>();
+        List<BrainData> herbBrainData;
+        List<BrainData> carnivoreBrainData;
+        List<BrainData> scavBrainData;
+
         private bool isActive;
         private Dictionary<uint, Brain> entities;
         private Dictionary<List<Brain>, GeneticAlgorithmData> geneticInfo;
 
-        public SporeManager()
+        public SporeManager(List<BrainData> herbBrainData, List<BrainData> carnivoreBrainData,
+            List<BrainData> scavBrainData, int gridSizeX, int gridSizeY, int hervivoreCount, int carnivoreCount,
+            int scavengerCount, int turnCount)
         {
+            this.herbBrainData = herbBrainData;
+            this.carnivoreBrainData = carnivoreBrainData;
+            this.scavBrainData = scavBrainData;
+            this.turnCount = turnCount;
+            this.gridSizeX = gridSizeX;
+            this.gridSizeY = gridSizeY;
+            this.hervivoreCount = hervivoreCount;
+            this.carnivoreCount = carnivoreCount;
+            this.scavengerCount = scavengerCount;
+
+            const int SCAV_BRAINS = 2;
+            const int CARN_BRAINS = 3;
+            const int HERB_BRAINS = 4;
+            if (herbBrainData.Count != HERB_BRAINS || carnivoreBrainData.Count != CARN_BRAINS ||
+                scavBrainData.Count != SCAV_BRAINS)
+            {
+                throw new Exception(
+                    "The brainData is invalid. The herbivore data should be: 4, carnivore data should be: 3, scav data should be: 2");
+            }
+
             CreateAgents();
             ECSManager.Init();
             entities = new Dictionary<uint, Brain>();
             InitEntities();
+            CreateNewGeneration();
         }
 
         public void Tick(float deltaTime)
@@ -61,14 +91,57 @@ namespace Miner.SecondExam.Agent
             else
             {
                 EpochAllBrains();
-                isActive = false;
                 CreateNewGeneration();
             }
         }
 
         private void CreateNewGeneration()
         {
-            throw new System.NotImplementedException();
+            foreach (var herb in herbis)
+            {
+                herb.Reset(GetRandomHerbPosition());
+            }
+
+            foreach (var carn in carnivores)
+            {
+                carn.Reset(GetRandomCarnivorePosition());
+            }
+
+            foreach (var scav in scavengers)
+            {
+                scav.Reset(GetRandomScavPosition());
+            }
+
+            foreach (var plant in plants)
+            {
+                plant.Reset(GetRandomScavPosition());
+            }
+
+            currentTurn = 0;
+        }
+
+        private Vector2 GetRandomHerbPosition()
+        {
+            Random random = new Random();
+            float randomX = random.Next(0, gridSizeX);
+            float randomY = random.Next(0, gridSizeY / 2);
+            return new Vector2(randomX, randomY);
+        }
+
+        private Vector2 GetRandomCarnivorePosition()
+        {
+            Random random = new Random();
+            float randomX = random.Next(0, gridSizeX);
+            float randomY = random.Next(gridSizeY / 2, gridSizeY);
+            return new Vector2(randomX, randomY);
+        }
+
+        private Vector2 GetRandomScavPosition()
+        {
+            Random random = new Random();
+            float randomX = random.Next(0, gridSizeX);
+            float randomY = random.Next(0, gridSizeY);
+            return new Vector2(randomX, randomY);
         }
 
         private void InitEntities()
@@ -99,34 +172,52 @@ namespace Miner.SecondExam.Agent
         {
             for (int i = 0; i < hervivoreCount; i++)
             {
-                herbis.Add(new Herbivore(this));
+                herbis.Add(new Herbivore(this, herbBrainData[0].ToBrain(), herbBrainData[1].ToBrain(),
+                    herbBrainData[2].ToBrain(), herbBrainData[3].ToBrain()));
                 herbMainBrains.Add(herbis[i].mainBrain);
                 herbEatBrains.Add(herbis[i].eatBrain);
                 herbEscapeBrains.Add(herbis[i].escapeBrain);
                 herbMoveBrains.Add(herbis[i].moveBrain);
             }
-            geneticInfo.Add(herbMainBrains,new GeneticAlgorithmData(EliteCount,MutationChance,MutationRate,herbMainBrains[0]));
-            geneticInfo.Add(herbEatBrains,new GeneticAlgorithmData(EliteCount,MutationChance,MutationRate,herbEatBrains[0]));
-            geneticInfo.Add(herbEscapeBrains,new GeneticAlgorithmData(EliteCount,MutationChance,MutationRate,herbEscapeBrains[0]));
-            geneticInfo.Add(herbMoveBrains,new GeneticAlgorithmData(EliteCount,MutationChance,MutationRate,herbMoveBrains[0]));
+
+            geneticInfo.Add(herbMainBrains,
+                new GeneticAlgorithmData(EliteCount, MutationChance, MutationRate, herbMainBrains[0]));
+            geneticInfo.Add(herbEatBrains,
+                new GeneticAlgorithmData(EliteCount, MutationChance, MutationRate, herbEatBrains[0]));
+            geneticInfo.Add(herbEscapeBrains,
+                new GeneticAlgorithmData(EliteCount, MutationChance, MutationRate, herbEscapeBrains[0]));
+            geneticInfo.Add(herbMoveBrains,
+                new GeneticAlgorithmData(EliteCount, MutationChance, MutationRate, herbMoveBrains[0]));
             for (int i = 0; i < carnivoreCount; i++)
             {
-                carnivores.Add(new Carnivore(this));
+                carnivores.Add(new Carnivore(this, carnivoreBrainData[0].ToBrain(), carnivoreBrainData[1].ToBrain(),
+                    carnivoreBrainData[2].ToBrain()));
                 carnMainBrains.Add(carnivores[i].mainBrain);
                 carnEatBrains.Add(carnivores[i].eatBrain);
                 carnMoveBrains.Add(carnivores[i].moveBrain);
             }
-            geneticInfo.Add(carnMainBrains,new GeneticAlgorithmData(EliteCount,MutationChance,MutationRate,carnMainBrains[0]));
-            geneticInfo.Add(carnEatBrains ,new GeneticAlgorithmData(EliteCount,MutationChance,MutationRate,carnEatBrains[0]));
-            geneticInfo.Add(carnMoveBrains,new GeneticAlgorithmData(EliteCount,MutationChance,MutationRate,carnMoveBrains[0]));
+
+            geneticInfo.Add(carnMainBrains,
+                new GeneticAlgorithmData(EliteCount, MutationChance, MutationRate, carnMainBrains[0]));
+            geneticInfo.Add(carnEatBrains,
+                new GeneticAlgorithmData(EliteCount, MutationChance, MutationRate, carnEatBrains[0]));
+            geneticInfo.Add(carnMoveBrains,
+                new GeneticAlgorithmData(EliteCount, MutationChance, MutationRate, carnMoveBrains[0]));
             for (int i = 0; i < scavengerCount; i++)
             {
-                scavengers.Add(new Scavenger(this));
+                scavengers.Add(new Scavenger(this, scavBrainData[0].ToBrain(), scavBrainData[1].ToBrain()));
                 scavMainBrains.Add(scavengers[i].mainBrain);
                 scavFlokingBrains.Add(scavengers[i].flockingBrain);
             }
-            geneticInfo.Add(scavMainBrains,new GeneticAlgorithmData(EliteCount,MutationChance,MutationRate,scavMainBrains[0]));
-            geneticInfo.Add(scavFlokingBrains ,new GeneticAlgorithmData(EliteCount,MutationChance,MutationRate,scavFlokingBrains[0]));
+
+            geneticInfo.Add(scavMainBrains,
+                new GeneticAlgorithmData(EliteCount, MutationChance, MutationRate, scavMainBrains[0]));
+            geneticInfo.Add(scavFlokingBrains,
+                new GeneticAlgorithmData(EliteCount, MutationChance, MutationRate, scavFlokingBrains[0]));
+            for (int i = 0; i < hervivoreCount * 2; i++)
+            {
+                plants.Add(new Plant());
+            }
         }
 
         private void CreateEntity(Brain brain)
@@ -170,8 +261,8 @@ namespace Miner.SecondExam.Agent
                 }
             }
             bool isGenerationDead = scavMainBrain.Count <= 1;
-            EpochLocal(scavMainBrain,isGenerationDead);
-            EpochLocal(scavFlockingBrain,isGenerationDead);
+            EpochLocal(scavMainBrain, isGenerationDead);
+            EpochLocal(scavFlockingBrain, isGenerationDead);
         }
 
         void EpochCarnivore()
@@ -355,6 +446,46 @@ namespace Miner.SecondExam.Agent
             }
 
             return nearest;
+        }
+
+        public List<Vector2> GetNearScavs(Vector2 position)
+        {
+            var nearbyScav = new List<(Scavenger scav, float distance)>();
+
+            foreach (Scavenger go in scavengers)
+            {
+                float distance = (position.X - go.position.X) * (position.X - go.position.X)
+                                 + (position.Y - go.position.Y) * (position.Y - go.position.Y);
+                nearbyScav.Add((go, distance));
+            }
+
+            nearbyScav.Sort((a, b) => a.distance.CompareTo(b.distance));
+
+            List<Vector2> nearScav = new List<Vector2>();
+            nearScav.Add(nearbyScav[0].scav.position);
+            nearScav.Add(nearbyScav[1].scav.position);
+            nearScav.Add(nearbyScav[2].scav.position);
+            return nearScav;
+        }
+
+        public List<Vector2> GetNearCarnivores(Vector2 position)
+        {
+            var nearCarn = new List<(Carnivore scav, float distance)>();
+
+            foreach (Carnivore go in carnivores)
+            {
+                float distance = (position.X - go.position.X) * (position.X - go.position.X)
+                                 + (position.Y - go.position.Y) * (position.Y - go.position.Y);
+                nearCarn.Add((go, distance));
+            }
+
+            nearCarn.Sort((a, b) => a.distance.CompareTo(b.distance));
+
+            List<Vector2> carnToReturn = new List<Vector2>();
+            carnToReturn.Add(nearCarn[0].scav.position);
+            carnToReturn.Add(nearCarn[1].scav.position);
+            carnToReturn.Add(nearCarn[2].scav.position);
+            return carnToReturn;
         }
     }
 }

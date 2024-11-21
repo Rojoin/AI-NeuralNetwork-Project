@@ -164,11 +164,7 @@ public static class GeneticAlgorithm
         randomLayer = Random.Range(1, brain.layers.Count - 1);
         neuronLayers = brain.layers;
     }
-
-    private static bool ShouldEvolve()
-    {
-        return true;
-    }
+    
 
     static void SelectElite(EvolutionType evolutionType, int eliteCount)
     {
@@ -431,7 +427,7 @@ public static class GeneticAlgorithm
         }
     }
 
-    static public Genome RouletteSelection(float totalFitness)
+    public static Genome RouletteSelection(float totalFitness)
     {
         float rnd = Random.Range(0, Mathf.Max(totalFitness, 0));
 

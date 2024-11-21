@@ -2,6 +2,7 @@
 using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
+
 [System.Serializable]
 public class Brain
 {
@@ -31,6 +32,7 @@ public class Brain
     {
         layers = brain.layers;
     }
+
     public void ApplyFitness()
     {
         fitness *= FitnessReward * FitnessMultiplier > 0 ? FitnessMultiplier : 0;
@@ -78,7 +80,7 @@ public class Brain
         return true;
     }
 
-    public bool AddNeuronLayerAtPosition( int neuronsCount, int layerPosition)
+    public bool AddNeuronLayerAtPosition(int neuronsCount, int layerPosition)
     {
         if (layers.Count <= 0 || layerPosition >= layers.Count)
         {
@@ -91,8 +93,8 @@ public class Brain
         totalWeightsCount -= layers[layerPosition].OutputsCount * layers[layerPosition + 1].OutputsCount;
 
         layers[layerPosition + 1] = new NeuronLayer(neuronsCount, layers[layerPosition + 1].NeuronsCount, bias, p);
-        
-        
+
+
         totalWeightsCount += layers[layerPosition + 1].OutputsCount * neuronsCount;
 
 
@@ -111,12 +113,13 @@ public class Brain
     public bool AddNeuronAtLayer(int neuronsCountToAdd, int layerPosition)
     {
         NeuronLayer oldLayer = layers[layerPosition];
-        layers[layerPosition] = new NeuronLayer(oldLayer.InputsCount, oldLayer.NeuronsCount + neuronsCountToAdd, bias, p);
+        layers[layerPosition] =
+            new NeuronLayer(oldLayer.InputsCount, oldLayer.NeuronsCount + neuronsCountToAdd, bias, p);
 
 
         NeuronLayer oldNextLayer = layers[layerPosition + 1];
-        layers[layerPosition + 1] = new NeuronLayer(layers[layerPosition].OutputsCount, oldNextLayer.NeuronsCount, bias, p);
-
+        layers[layerPosition + 1] =
+            new NeuronLayer(layers[layerPosition].OutputsCount, oldNextLayer.NeuronsCount, bias, p);
 
 
         totalWeightsCount += layers[layerPosition].OutputsCount * neuronsCountToAdd;
@@ -124,7 +127,7 @@ public class Brain
 
 
         Debug.Log($"The new totalWeight is{totalWeightsCount} adding neurons");
-        
+
         totalWeightsCount = GetWeightsCount();
         Debug.Log($"The weight is{GetWeightsCount()} adding neurons");
 
@@ -170,7 +173,7 @@ public class Brain
         int id = 0;
         foreach (var layer in layers)
         {
-            id+= layer.GetWeightCount();
+            id += layer.GetWeightCount();
         }
 
         return id;
@@ -248,5 +251,37 @@ public class Brain
         }
 
         return layersToReturn;
+    }
+
+    public static Brain CreateBrain(int InputsCount, int HiddenLayers, int NeuronsCountPerHL, int OutputsCount,
+        float Bias, float P)
+    {
+        Brain brain = new Brain();
+
+        brain.AddFirstNeuronLayer(InputsCount, Bias, P);
+
+        for (int i = 0; i < HiddenLayers; i++)
+        {
+            brain.AddNeuronLayer(NeuronsCountPerHL, Bias, P);
+        }
+
+        brain.AddNeuronLayer(OutputsCount, Bias, P);
+
+        return brain;
+    }  public static Brain CreateBrain(int InputsCount, int[] HiddenLayers, int OutputsCount,
+        float Bias, float P)
+    {
+        Brain brain = new Brain();
+
+        brain.AddFirstNeuronLayer(InputsCount, Bias, P);
+
+        for (int i = 0; i < HiddenLayers.Length; i++)
+        {
+            brain.AddNeuronLayer(HiddenLayers[i], Bias, P);
+        }
+
+        brain.AddNeuronLayer(OutputsCount, Bias, P);
+
+        return brain;
     }
 }

@@ -16,7 +16,7 @@ public enum ScavengerFlags
 public sealed class ScavengerMoveState : SporeMoveState
 {
     private float MinEatRadius;
-    private float counter;
+    private int counter;
     private int movesPerTurn = 2;
 
     public override BehaviourActions GetTickBehaviours(params object[] parameters)
@@ -30,6 +30,8 @@ public sealed class ScavengerMoveState : SporeMoveState
         bool hasEatenFood = (bool)parameters[4];
         Herbivore herbivore = parameters[5] as Herbivore;
         var onMove = parameters[6] as Action<Vector2[]>;
+        counter = (int)parameters[7];
+        var onEat = parameters[8] as Action<int>;
         behaviour.AddMultiThreadBehaviour(0, () =>
         {
             List<Vector2> newPositions = new List<Vector2> { nearFoodPos };
@@ -38,7 +40,7 @@ public sealed class ScavengerMoveState : SporeMoveState
             if (distanceFromFood < MinEatRadius && !hasEatenFood)
             {
                 counter++;
-
+                onEat.Invoke(counter);
                 brain.FitnessReward += 1;
 
                 if (counter >= 20)
@@ -92,22 +94,33 @@ public class Scavenger : SporeAgent<ScavengerStates, ScavengerFlags>
     public Brain flockingBrain;
     float minEatRadius;
     protected Vector2 dir;
+    public bool hasEaten = false;
+    public int counterEating = 0;
     protected float speed;
 
-    public Scavenger(SporeManager populationManager) : base(populationManager) 
+    public void Reset(Vector2 position)
     {
-        mainBrain = new Brain();
+        hasEaten = false;
+        this.position = position;
+        counterEating = 0;
+        fsm.ForceState(ScavengerStates.Move);
+    }
+
+    public Scavenger(SporeManager populationManager, Brain main, Brain flockBrain) : base(populationManager, main)
+    {
+        flockingBrain = flockBrain;
         minEatRadius = 4f;
-        
+
         Action<Vector2> setDir;
+        Action<int> setEatingCounter;
         fsm.AddBehaviour<ScavengerMoveState>(ScavengerStates.Move,
             onEnterParametes: () => { return new object[] { mainBrain, position, minEatRadius }; },
             onTickParametes: () =>
             {
                 return new object[]
                 {
-                    mainBrain.outputs, position, minEatRadius, GetNearFoodPos(), hasEaten,GetNearHerbivore(),
-                    setDir = MoveTo,
+                    mainBrain.outputs, position, minEatRadius, GetNearFoodPos(), hasEaten, GetNearHerbivore(),
+                    setDir = MoveTo, counterEating, setEatingCounter = b => counterEating = b
                 };
             });
 
@@ -116,15 +129,15 @@ public class Scavenger : SporeAgent<ScavengerStates, ScavengerFlags>
 
     public override void DecideState(float[] outputs)
     {
-
     }
 
     public override void PreUpdate(float deltaTime)
     {
         var nearFoodPos = GetNearFoodPos();
-        mainBrain.inputs = new[] { position.X, position.Y, minEatRadius, nearFoodPos.X, nearFoodPos.Y};
-        //Todo: preguntarle a lean
-        flockingBrain.inputs = new[] { 0.0f,};
+        mainBrain.inputs = new[] { position.X, position.Y, minEatRadius, nearFoodPos.X, nearFoodPos.Y };
+        //Todo: Agregar los otros parametros de flocking
+        var ner = GetNearScavs();
+        flockingBrain.inputs = new[] { position.X, position.Y, ner[0].X, ner[0].Y, ner[1].X, ner[1].Y };
     }
 
     public override void Update(float deltaTime)
@@ -136,6 +149,23 @@ public class Scavenger : SporeAgent<ScavengerStates, ScavengerFlags>
     private void Move(float deltaTime)
     {
         position += dir * speed * deltaTime;
+        if (position.X > populationManager.gridSizeX)
+        {
+            position.X = populationManager.gridSizeX;
+        }
+        else if (position.X < 0)
+        {
+            position.X = 0;
+        }
+
+        if (position.Y > populationManager.gridSizeY)
+        {
+            position.Y = populationManager.gridSizeY;
+        }
+        else if (position.Y < 0)
+        {
+            position.Y = 0;
+        }
     }
 
     public Vector2 GetNearFoodPos()
@@ -148,8 +178,23 @@ public class Scavenger : SporeAgent<ScavengerStates, ScavengerFlags>
         return populationManager.GetNearHerbivore(position);
     }
 
+    public List<Vector2> GetNearScavs()
+    {
+        return populationManager.GetNearScavs(position);
+    }
+
     public override void MoveTo(Vector2 dir)
     {
         this.dir = dir;
+    }
+
+    public override void GiveFitnessToMain()
+    {
+        mainBrain.FitnessMultiplier = 1.0f;
+        mainBrain.FitnessReward = 0f;
+        mainBrain.FitnessReward += flockingBrain.FitnessReward + (hasEaten ? flockingBrain.FitnessReward : 0);
+        mainBrain.FitnessMultiplier += flockingBrain.FitnessMultiplier + (hasEaten ? 1 : 0);
+
+        mainBrain.ApplyFitness();
     }
 }

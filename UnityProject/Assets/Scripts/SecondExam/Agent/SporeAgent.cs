@@ -72,18 +72,20 @@ namespace Miner.SecondExam.Agent
     {
         protected SporeManager populationManager;
         public Brain mainBrain;
-        public bool hasEaten = false;
+      
         protected bool isActive;
         protected FSM<AgentStates, AgentFlags> fsm;
-        public SporeAgent(SporeManager populationManager)
+        public SporeAgent(SporeManager populationManager, Brain main)
         {
             fsm = new FSM<AgentStates, AgentFlags>();
             this.populationManager = populationManager;
+            mainBrain = main;
         }
 
         public abstract void DecideState(float[] outputs);
         public abstract void PreUpdate(float deltaTime);
         public abstract void Update(float deltaTime);
         public abstract void MoveTo(Vector2 dir);
+        public abstract void GiveFitnessToMain();
     }
 }

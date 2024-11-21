@@ -11,10 +11,18 @@ public class BrainData
     public int[] NeuronsCountPerHL;
     public float Bias = 1f;
     public float P = 1f;
-    public List<Genome> genomeCollection { get; set; }
-
-    public BrainData(int inputsCount, int hiddenLayers, int outputsCount, float bias, float p)
+    
+    public BrainData(int inputsCount, int[] NeuronsCountPerHL, int outputsCount, float bias, float p)
     {
-       
+       InputsCount = inputsCount;
+       this.NeuronsCountPerHL = NeuronsCountPerHL;
+       OutputsCount = outputsCount;
+       Bias = bias;
+       P = p;
+    }
+
+    public Brain ToBrain()
+    {
+        return Brain.CreateBrain(InputsCount,NeuronsCountPerHL ,OutputsCount, Bias, P);
     }
 }
