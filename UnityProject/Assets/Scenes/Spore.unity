@@ -250,14 +250,14 @@ MonoBehaviour:
   herbMesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
   herbMaterial: {fileID: 2100000, guid: 65b34bd0b696fd64c809daa8ff1aac63, type: 2}
   plantMaterial: {fileID: 2100000, guid: 03ad6a4c3c0e64440b1d6cee74fc2a4f, type: 2}
-  carnMaterial: {fileID: 2100000, guid: fac0fef134876ce41b0b9813e789ca86, type: 2}
-  scavMaterial: {fileID: 2100000, guid: c87d469064dd9a94593bbbc79e413563, type: 2}
+  carnMaterial: {fileID: 2100000, guid: d0c31a39c426da94496d2abbf928d525, type: 2}
+  scavMaterial: {fileID: 2100000, guid: f053c779a3c9ee941a2859146417e7a0, type: 2}
   plantMesh: {fileID: 10208, guid: 0000000000000000e000000000000000, type: 0}
   carnMesh: {fileID: 10207, guid: 0000000000000000e000000000000000, type: 0}
   scavMesh: {fileID: 4300000, guid: 002e2a607f5b64c48be0b3b0d8b8bfdd, type: 3}
-  gridSizeX: 10
-  gridSizeY: 10
-  herbivoreCount: 10
+  gridSizeX: 100
+  gridSizeY: 100
+  herbivoreCount: 50
   carnivoreCount: 4
   scavengerCount: 4
   turnCount: 50
