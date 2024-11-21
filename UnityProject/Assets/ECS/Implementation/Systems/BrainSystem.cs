@@ -35,7 +35,7 @@ public class BrainSystem : ECSSystem
             typeof(SigmoidComponent),
             typeof(InputLayerComponent),
             typeof(InputComponent),
-            typeof(BiasComponent), 
+            typeof(BiasComponent),
             typeof(OutputLayerComponent),
             typeof(OutputComponent),
             typeof(HiddenLayerComponent));
@@ -46,24 +46,28 @@ public class BrainSystem : ECSSystem
         Parallel.ForEach(queriedEntities, parallelOptions, entity =>
         {
             float[] inputs = inputComponents[entity].inputs;
+            outputsComponents[entity].outputs = new float[inputs.Length];
 
             outputsComponents[entity].outputs = FirstLayerSynapsis(entity, inputs);
             inputComponents[entity].inputs = outputsComponents[entity].outputs;
-            
+
             for (int layer = 0; layer < hiddenLayerComponents[entity].hiddenLayers.Length; layer++)
             {
-                outputsComponents[entity].outputs = LayerSynapsis(entity, inputs, layer);
-                inputs = outputsComponents[entity].outputs;
+                outputsComponents[entity].outputs = LayerSynapsis(entity, inputComponents[entity].inputs, layer);
+                inputComponents[entity].inputs = outputsComponents[entity].outputs;
             }
-            outputsComponents[entity].outputs = OutputLayerSynapsis(entity, inputs);
+            outputsComponents[entity].outputs = inputComponents[entity].inputs;
+            outputsComponents[entity].outputs = OutputLayerSynapsis(entity, inputComponents[entity].inputs);
         });
     }
 
     private float[] LayerSynapsis(uint entity, float[] inputs, int layer)
     {
-        Parallel.For(0, inputs.Length,
-            neuron => { outputsComponents[entity].outputs[neuron] = NeuronSynapsis(entity, neuron, inputs, layer); });
-        return outputsComponents[entity].outputs;
+        int neuronCount = hiddenLayerComponents[entity].hiddenLayers[layer].weights.GetLength(0);
+        float[] localOutputs = new float[neuronCount];
+        Parallel.For(0, neuronCount,
+            neuron => {localOutputs[neuron] = NeuronSynapsis(entity, neuron, inputs, layer); });
+        return localOutputs;
     }
 
     private float[] FirstLayerSynapsis(uint entity, float[] inputs)
@@ -75,17 +79,24 @@ public class BrainSystem : ECSSystem
 
     private float[] OutputLayerSynapsis(uint entity, float[] inputs)
     {
-        Parallel.For(0, inputs.Length,
-            neuron => { outputsComponents[entity].outputs[neuron] = LastNeuronSynapsis(entity, neuron, inputs); });
-        return outputsComponents[entity].outputs;
+        int neuronCount = outputsLayerComponents[entity].layer.weights.GetLength(0);
+        float[] localOutputs = new float[neuronCount];
+        Parallel.For(0, neuronCount,
+            neuron => { localOutputs[neuron] = LastNeuronSynapsis(entity, neuron, inputs); });
+        return localOutputs;
     }
 
     private float NeuronSynapsis(uint entity, int neuron, float[] inputs, int layer)
     {
+        var weights = hiddenLayerComponents[entity].hiddenLayers[layer].weights;
+        
         var bag = new ConcurrentBag<float>();
         float a = 0;
-        Parallel.For(0, inputLayerComponents.Count,
-            k => { bag.Add(hiddenLayerComponents[entity].hiddenLayers[layer].weights[neuron,k] * inputs[k]); });
+        Parallel.For(0, weights.GetLength(1),
+            k =>
+            {
+                bag.Add(weights[neuron, k] * inputs[k]);
+            });
         a = bag.Sum();
         a += biasComponents[entity].X;
 
@@ -94,10 +105,16 @@ public class BrainSystem : ECSSystem
 
     private float LastNeuronSynapsis(uint entity, int neuron, float[] inputs)
     {
+        var weights = outputsLayerComponents[entity].layer.weights;
+        
         var bag = new ConcurrentBag<float>();
         float a = 0;
-        Parallel.For(0, inputs.Length,
-            k => { bag.Add(inputLayerComponents[entity].layer.weights[neuron,k] * inputs[k]); });
+        Parallel.For(0, weights.GetLength(1),
+            k =>
+            {
+                bag.Add(weights[neuron, k] * inputs[k]
+                );
+            });
         a = bag.Sum();
         a += biasComponents[entity].X;
 
@@ -109,7 +126,10 @@ public class BrainSystem : ECSSystem
         var bag = new ConcurrentBag<float>();
         float a = 0;
         Parallel.For(0, inputs.Length,
-            k => { bag.Add(outputsLayerComponents[entity].layer.weights[neuron,k] * inputs[k]); });
+            k =>
+            {
+                bag.Add(inputLayerComponents[entity].layer.weights[neuron, k] * inputs[k]);
+            });
         a = bag.Sum();
         a += biasComponents[entity].X;
 

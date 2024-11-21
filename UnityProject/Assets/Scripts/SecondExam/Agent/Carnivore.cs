@@ -1,7 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Numerics;
 using Miner.SecondExam.Agent;
+using UnityEngine;
+using Vector2 = System.Numerics.Vector2;
 
 public enum CarnivoreStates
 {
@@ -33,7 +34,7 @@ public class CarnivoreMoveState : SporeMoveState
         float[] outputs = parameters[0] as float[];
         position = (Vector2)parameters[1];
         Vector2 nearFoodPos = (Vector2)parameters[2];
-        var onMove = parameters[3] as Action<Vector2[]>;
+        Action<Vector2> onMove = parameters[3] as Action<Vector2>;
         Herbivore herbivore = parameters[4] as Herbivore;
         behaviour.AddMultiThreadBehaviour(0, () =>
         {
@@ -50,8 +51,9 @@ public class CarnivoreMoveState : SporeMoveState
 
             foreach (Vector2 dir in direction)
             {
-                onMove.Invoke(direction);
+                onMove?.Invoke(dir);
                 position += dir;
+                Debug.Log($"I wanted to move to {dir}");
                 //Todo: Make a way to check the limit of the grid
             }
 
@@ -257,6 +259,24 @@ public class Carnivore : SporeAgent<CarnivoreStates, CarnivoreFlags>
 
     public override void MoveTo(Vector2 dir)
     {
+        position += dir;
+        if (position.X > populationManager.gridSizeX)
+        {
+            position.X = populationManager.gridSizeX; 
+        }
+        else if (position.X < 0)
+        {
+            position.X = 0; 
+        }
+
+        if (position.Y >populationManager.gridSizeY)
+        {
+            position.Y = populationManager.gridSizeY;
+        }
+        else if (position.Y < 0)
+        {
+            position.Y = 0;
+        }
     }
 
     public override void GiveFitnessToMain()

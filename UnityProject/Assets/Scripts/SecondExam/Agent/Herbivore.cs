@@ -224,7 +224,7 @@ namespace Miner.SecondExam.Agent
             float[] outputs = parameters[0] as float[];
             position = (Vector2)parameters[1];
             nearEnemyPositions = parameters[2] as List<Vector2>;
-            var onMove = parameters[3] as Action<Vector2[]>;
+            Action<Vector2> onMove = parameters[3] as Action<Vector2>;
             behaviour.AddMultiThreadBehaviour(0, () =>
             {
                 //Outputs:
@@ -255,7 +255,7 @@ namespace Miner.SecondExam.Agent
                 }
 
                 Vector2[] direction = new Vector2[movementPerTurn];
-                for (int i = 0; i < 3; i++)
+                for (int i = 0; i < direction.Length; i++)
                 {
                     direction[i] = GetDir(outputs[i + 1]);
                 }
@@ -264,7 +264,7 @@ namespace Miner.SecondExam.Agent
                 {
                     foreach (Vector2 dir in direction)
                     {
-                        onMove.Invoke(direction);
+                        onMove.Invoke(dir);
                         position += dir;
                         //Todo: Make a way to check the limit of the grid
                     }
@@ -375,12 +375,13 @@ namespace Miner.SecondExam.Agent
             Action<Vector2> onMove;
             Action<bool> onEatenFood;
             Action<int> onEat;
+            onMove = MoveTo;
             fsm.AddBehaviour<HerbivoreMoveState>(HeribovoreStates.Move,
                 onEnterParametes: () => { return new object[] { moveBrain }; },
                 onTickParametes: () =>
                 {
                     return new object[]
-                        { moveBrain.outputs, position, GetNearestFoodPosition(), onMove = MoveTo, GetNearestFood(), populationManager.gridSizeX, populationManager.gridSizeY };
+                        { moveBrain.outputs, position, GetNearestFoodPosition(), onMove, GetNearestFood(), populationManager.gridSizeX, populationManager.gridSizeY };
                 });
             fsm.AddBehaviour<HerbivoreEatState>(HeribovoreStates.Eat,
                 onEnterParametes: () => { return new object[] { eatBrain }; },

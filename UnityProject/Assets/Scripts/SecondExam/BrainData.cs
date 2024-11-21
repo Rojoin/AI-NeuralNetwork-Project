@@ -19,8 +19,7 @@ public class BrainData
        OutputsCount = outputsCount;
        Bias = bias;
        P = p;
-    }
-
+    } 
     public Brain ToBrain()
     {
         return Brain.CreateBrain(InputsCount,NeuronsCountPerHL ,OutputsCount, Bias, P);

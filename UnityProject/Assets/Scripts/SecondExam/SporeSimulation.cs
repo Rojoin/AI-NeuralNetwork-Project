@@ -1,18 +1,23 @@
 ﻿using Miner.SecondExam.Agent;
 using Unity.Mathematics;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 namespace Miner.SecondExam
 {
     using System.Collections.Generic;
     using System.Numerics;
     using UnityEngine;
-    using Vector2 = System.Numerics.Vector2; // Ensure you use the correct Vector2 for SporeManager
+    using Vector2 = System.Numerics.Vector2;
 
     public class SporeSimulation : MonoBehaviour
     {
+        public bool isSimulationActive = true;
         [Header("Meshes Settings")] public Mesh herbMesh;
-        public Material entityMaterial;
+        public Material herbMaterial;
+        public Material plantMaterial;
+        public Material carnMaterial;
+        public Material scavMaterial;
         public Mesh plantMesh;
         public Mesh carnMesh;
         public Mesh scavMesh;
@@ -23,15 +28,15 @@ namespace Miner.SecondExam
         public int scavengerCount = 20;
         public int turnCount = 100;
 
+        public int currentGeneration;
         [Header("Mutation Settings")] public float mutationChance = 0.1f;
         public float mutationRate = 0.01f;
         public int eliteCount = 4;
 
         private SporeManager sporeManager;
-        private float simulationDeltaTime = 0.1f; // Adjust for simulation speed
+        public float simulationDeltaTime = 0.1f; // Adjust for simulation speed
         private float timer = 0;
-        [Header("BrainConfigs")] 
-        public float herbBias = 0.5f;
+        [Header("BrainConfigs")] public float herbBias = 0.5f;
         public float herbP = 0.5f;
         public BrainData mainHerb;
         public BrainData moveBrain;
@@ -47,28 +52,28 @@ namespace Miner.SecondExam
         public BrainData mainScav;
         public BrainData flockScav;
 
+
         void Start()
         {
-            mainHerb = new BrainData(11, new int[5], 3, herbBias, herbP);
-            moveBrain = new BrainData(4, new int[5], 4, herbBias, herbP);
-            eatBrain = new BrainData(5, new int[3], 1, herbBias, herbP);
-            escapeBrain = new BrainData(8, new int[5], 4, herbBias, herbP);
-            
-            mainCarn = new BrainData(5, new int[3], 2, carnBias, carnP);
-            moveCarn = new BrainData(4, new int[3], 2, carnBias, carnP);
-            eatCarn =new BrainData(5, new int[2], 1, carnBias, carnP);
-            
-            mainScav =new BrainData(5, new int[3], 2, scavBias, scavP);
-            flockScav = new BrainData(6, new int[5], 4, scavBias, scavP);;
-            
-            
-            
-            
+            mainHerb = new BrainData(11, new int[] { 7, 5 }, 3, herbBias, herbP);
+            moveBrain = new BrainData(4, new int[] { 5 }, 4, herbBias, herbP);
+            eatBrain = new BrainData(5, new int[] { 3 }, 1, herbBias, herbP);
+            escapeBrain = new BrainData(8, new int[] { 5 }, 4, herbBias, herbP);
+
+            mainCarn = new BrainData(5, new int[] { 3 }, 2, carnBias, carnP);
+            moveCarn = new BrainData(4, new int[] { 3 }, 2, carnBias, carnP);
+            eatCarn = new BrainData(5, new int[] { 2 }, 1, carnBias, carnP);
+
+            mainScav = new BrainData(5, new int[] { 3 }, 2, scavBias, scavP);
+            flockScav = new BrainData(6, new int[] { 5 }, 4, scavBias, scavP);
+            ;
+
+
             // Example brain data initialization (Replace with actual data)
             var herbBrainData = new List<BrainData>
                 { mainHerb, moveBrain, eatBrain, escapeBrain };
-            var carnBrainData = new List<BrainData> { mainCarn, moveCarn,eatCarn};
-            var scavBrainData = new List<BrainData> { mainScav,flockScav};
+            var carnBrainData = new List<BrainData> { mainCarn, moveCarn, eatCarn };
+            var scavBrainData = new List<BrainData> { mainScav, flockScav };
 
             // Initialize SporeManager
             sporeManager = new SporeManager(
@@ -89,11 +94,13 @@ namespace Miner.SecondExam
             timer += Time.deltaTime;
 
             // Tick the simulation at a fixed interval
-            if (timer >= simulationDeltaTime)
-            {
-                sporeManager.Tick(simulationDeltaTime);
-                timer = 0;
-            }
+            // if (timer >= simulationDeltaTime)
+            // {
+            currentGeneration = sporeManager.generation;
+            sporeManager.isActive = isSimulationActive;
+            sporeManager.Tick(Time.deltaTime);
+            timer = 0;
+            // }
 
 
             DrawEntities();
@@ -104,20 +111,20 @@ namespace Miner.SecondExam
             foreach (var agent in sporeManager.herbis)
             {
                 UnityEngine.Vector3 worldPosition = new UnityEngine.Vector3(agent.position.X, agent.position.Y, 0);
-                entityMaterial.color = Color.yellow;
+                herbMaterial.color = Color.yellow;
                 if (agent.lives < 0)
                 {
-                    entityMaterial.color = Color.cyan;
+                    herbMaterial.color = Color.cyan;
                 }
 
-                Graphics.DrawMesh(herbMesh, worldPosition, UnityEngine.Quaternion.identity, entityMaterial, 0);
+                Graphics.DrawMesh(herbMesh, worldPosition, UnityEngine.Quaternion.identity, herbMaterial, 0);
             }
 
             foreach (var agent in sporeManager.carnivores)
             {
                 UnityEngine.Vector3 worldPosition = new UnityEngine.Vector3(agent.position.X, agent.position.Y, 0);
-                entityMaterial.color = Color.red;
-                Graphics.DrawMesh(herbMesh, worldPosition, UnityEngine.Quaternion.identity, entityMaterial, 0);
+                carnMaterial.color = Color.red;
+                Graphics.DrawMesh(carnMesh, worldPosition, UnityEngine.Quaternion.identity, carnMaterial, 0);
             }
 
             foreach (var agent in sporeManager.plants)
@@ -128,15 +135,15 @@ namespace Miner.SecondExam
                 }
 
                 UnityEngine.Vector3 worldPosition = new UnityEngine.Vector3(agent.position.X, agent.position.Y, 0);
-                entityMaterial.color = Color.green;
-                Graphics.DrawMesh(herbMesh, worldPosition, UnityEngine.Quaternion.identity, entityMaterial, 0);
+                plantMaterial.color = Color.green;
+                Graphics.DrawMesh(plantMesh, worldPosition, UnityEngine.Quaternion.identity, plantMaterial, 0);
             }
 
             foreach (var agent in sporeManager.scavengers)
             {
                 UnityEngine.Vector3 worldPosition = new UnityEngine.Vector3(agent.position.X, agent.position.Y, 0);
-                entityMaterial.color = Color.black;
-                Graphics.DrawMesh(herbMesh, worldPosition, UnityEngine.Quaternion.identity, entityMaterial, 0);
+                scavMaterial.color = Color.black;
+                Graphics.DrawMesh(scavMesh, worldPosition, UnityEngine.Quaternion.identity, scavMaterial, 0);
             }
         }
 

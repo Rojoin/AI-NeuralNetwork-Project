@@ -12,14 +12,17 @@ namespace Miner.SecondExam.Agent
     public class SporeManager : ISaveObject
     {
         SaveObjectData saveObject = new SaveObjectData();
-        [SaveValue(0)] public int gridSizeX = 10;
-        [SaveValue(1)] public int gridSizeY = 10;
-        [SaveValue(3)] public int hervivoreCount = 30;
-        [SaveValue(4)] public int carnivoreCount = 20;
-        [SaveValue(5)] public int scavengerCount = 20;
-        [SaveValue(7)] public int EliteCount = 4;
-        [SaveValue(8)] public float MutationChance = 0.10f;
-        [SaveValue(9)] public float MutationRate = 0.01f;
+        [SaveValue(0)] public int generation = 0;
+
+        [SaveValue(1)] public int hervivoreCount = 30;
+        [SaveValue(2)] public int carnivoreCount = 20;
+        [SaveValue(3)] public int scavengerCount = 20;
+        public int gridSizeX = 10;
+        public int gridSizeY = 10;
+
+        public int EliteCount = 4;
+        public float MutationChance = 0.10f;
+        public float MutationRate = 0.01f;
         public int turnCount = 100;
         private int currentTurn = 0;
 
@@ -41,9 +44,9 @@ namespace Miner.SecondExam.Agent
         List<BrainData> carnivoreBrainData;
         List<BrainData> scavBrainData;
 
-        private bool isActive;
+        public bool isActive;
         private Dictionary<uint, Brain> entities;
-        private Dictionary<List<Brain>, GeneticAlgorithmData> geneticInfo = new Dictionary<List<Brain>, GeneticAlgorithmData>();
+        private Dictionary<string, GeneticAlgorithmData> geneticInfo = new Dictionary<string, GeneticAlgorithmData>();
 
         public SporeManager(List<BrainData> herbBrainData, List<BrainData> carnivoreBrainData,
             List<BrainData> scavBrainData, int gridSizeX, int gridSizeY, int hervivoreCount, int carnivoreCount,
@@ -97,6 +100,7 @@ namespace Miner.SecondExam.Agent
 
         private void CreateNewGeneration()
         {
+            generation++;
             foreach (var herb in herbis)
             {
                 herb.Reset(GetRandomHerbPosition());
@@ -180,13 +184,13 @@ namespace Miner.SecondExam.Agent
                 herbEscapeBrains.Add(herbis[i].escapeBrain);
             }
 
-            geneticInfo.Add(herbMainBrains,
+            geneticInfo.Add("HMainB",
                 new GeneticAlgorithmData(EliteCount, MutationChance, MutationRate, herbMainBrains[0]));
-            geneticInfo.Add(herbEatBrains,
+            geneticInfo.Add("HEatB",
                 new GeneticAlgorithmData(EliteCount, MutationChance, MutationRate, herbEatBrains[0]));
-            geneticInfo.Add(herbEscapeBrains,
+            geneticInfo.Add("HEscapeB",
                 new GeneticAlgorithmData(EliteCount, MutationChance, MutationRate, herbEscapeBrains[0]));
-            geneticInfo.Add(herbMoveBrains,
+            geneticInfo.Add("HMoveB",
                 new GeneticAlgorithmData(EliteCount, MutationChance, MutationRate, herbMoveBrains[0]));
             for (int i = 0; i < carnivoreCount; i++)
             {
@@ -197,11 +201,11 @@ namespace Miner.SecondExam.Agent
                 carnMoveBrains.Add(carnivores[i].moveBrain);
             }
 
-            geneticInfo.Add(carnMainBrains,
+            geneticInfo.Add("CMainB",
                 new GeneticAlgorithmData(EliteCount, MutationChance, MutationRate, carnMainBrains[0]));
-            geneticInfo.Add(carnEatBrains,
+            geneticInfo.Add("CEatB",
                 new GeneticAlgorithmData(EliteCount, MutationChance, MutationRate, carnEatBrains[0]));
-            geneticInfo.Add(carnMoveBrains,
+            geneticInfo.Add("CMoveB",
                 new GeneticAlgorithmData(EliteCount, MutationChance, MutationRate, carnMoveBrains[0]));
             for (int i = 0; i < scavengerCount; i++)
             {
@@ -210,9 +214,9 @@ namespace Miner.SecondExam.Agent
                 scavFlokingBrains.Add(scavengers[i].flockingBrain);
             }
 
-            geneticInfo.Add(scavMainBrains,
+            geneticInfo.Add("SMainB",
                 new GeneticAlgorithmData(EliteCount, MutationChance, MutationRate, scavMainBrains[0]));
-            geneticInfo.Add(scavFlokingBrains,
+            geneticInfo.Add("SFlockB",
                 new GeneticAlgorithmData(EliteCount, MutationChance, MutationRate, scavFlokingBrains[0]));
             for (int i = 0; i < hervivoreCount * 2; i++)
             {
@@ -245,6 +249,8 @@ namespace Miner.SecondExam.Agent
             {
                 HiddenLayerComponent inputComponent = ECSManager.GetComponent<HiddenLayerComponent>(entity.Key);
                 inputComponent.hiddenLayers = entity.Value.GetHiddenLayers();
+                OutputLayerComponent outputComponent = ECSManager.GetComponent<OutputLayerComponent>(entity.Key);
+                outputComponent.layer = entity.Value.GetOutputLayer();
             }
         }
 
@@ -260,9 +266,10 @@ namespace Miner.SecondExam.Agent
                     scavFlockingBrain.Add(scav.flockingBrain);
                 }
             }
+
             bool isGenerationDead = scavMainBrain.Count <= 1;
-            EpochLocal(scavMainBrain, isGenerationDead);
-            EpochLocal(scavFlockingBrain, isGenerationDead);
+            EpochLocal(scavMainBrain, isGenerationDead, "SMainB");
+            EpochLocal(scavFlockingBrain, isGenerationDead, "SFlockB");
         }
 
         void EpochCarnivore()
@@ -281,9 +288,9 @@ namespace Miner.SecondExam.Agent
             }
 
             bool isGenerationDead = carnivoreMainBrain.Count <= 1;
-            EpochLocal(carnivoreMainBrain, isGenerationDead);
-            EpochLocal(carnivoreEatBrain, isGenerationDead);
-            EpochLocal(carnivoreMoveBrain, isGenerationDead);
+            EpochLocal(carnivoreMainBrain, isGenerationDead, "CMainB");
+            EpochLocal(carnivoreEatBrain, isGenerationDead, "CEatB");
+            EpochLocal(carnivoreMoveBrain, isGenerationDead, "CMoveB");
         }
 
         private void EpochHerbivore()
@@ -305,15 +312,15 @@ namespace Miner.SecondExam.Agent
 
             bool isGenerationDead = herbivoresMainBrain.Count <= 1;
 
-            EpochLocal(herbivoresMainBrain, isGenerationDead);
-            EpochLocal(herbivoresMoveBrain, isGenerationDead);
-            EpochLocal(herbivoresEatBrain, isGenerationDead);
-            EpochLocal(herbivoresEscapeBrain, isGenerationDead);
+            EpochLocal(herbivoresMainBrain, isGenerationDead, "HMainB");
+            EpochLocal(herbivoresMoveBrain, isGenerationDead, "HMoveB");
+            EpochLocal(herbivoresEatBrain, isGenerationDead, "HEatB");
+            EpochLocal(herbivoresEscapeBrain, isGenerationDead, "HEscapeB");
         }
 
-        private void EpochLocal(List<Brain> brains, bool force)
+        private void EpochLocal(List<Brain> brains, bool force, string key)
         {
-            Genome[] newGenomes = GeneticAlgorithm.Epoch(GetGenomes(brains), geneticInfo[brains], force);
+            Genome[] newGenomes = GeneticAlgorithm.Epoch(GetGenomes(brains), geneticInfo[key], force);
 
             for (int i = 0; i < brains.Count; i++)
             {

@@ -29,7 +29,7 @@ public sealed class ScavengerMoveState : SporeMoveState
         MinEatRadius = (float)(parameters[3]);
         bool hasEatenFood = (bool)parameters[4];
         Herbivore herbivore = parameters[5] as Herbivore;
-        var onMove = parameters[6] as Action<Vector2[]>;
+        var onMove = parameters[6] as Action<Vector2>;
         counter = (int)parameters[7];
         var onEat = parameters[8] as Action<int>;
         behaviour.AddMultiThreadBehaviour(0, () =>
@@ -119,7 +119,7 @@ public class Scavenger : SporeAgent<ScavengerStates, ScavengerFlags>
             {
                 return new object[]
                 {
-                    mainBrain.outputs, position, minEatRadius, GetNearFoodPos(), hasEaten, GetNearHerbivore(),
+                    mainBrain.outputs, position,  GetNearFoodPos(),minEatRadius, hasEaten, GetNearHerbivore(),
                     setDir = MoveTo, counterEating, setEatingCounter = b => counterEating = b
                 };
             });
