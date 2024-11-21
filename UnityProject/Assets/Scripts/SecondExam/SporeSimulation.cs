@@ -1,11 +1,10 @@
 ﻿using System;
-using Miner.SecondExam.Agent;
+using RojoinNeuralNetwork;
 using Unity.Mathematics;
 using UnityEngine;
 using UnityEngine.Serialization;
 
-namespace Miner.SecondExam
-{
+
     using System.Collections.Generic;
     using System.Numerics;
     using UnityEngine;
@@ -169,4 +168,3 @@ namespace Miner.SecondExam
                 Gizmos.DrawLine(new UnityEngine.Vector3(0, y, 0), new UnityEngine.Vector3(gridSizeX, y, 0));
         }
     }
-}
