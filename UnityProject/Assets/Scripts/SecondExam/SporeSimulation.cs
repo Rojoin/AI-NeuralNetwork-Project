@@ -9,6 +9,7 @@ public class SporeSimulation : MonoBehaviour
 {
     public string fileToLoad;
     public string filePath = "/Saves/Genomes";
+    public string fileExtension = ".spore";
     public bool isSimulationActive = true;
     [Header("Meshes Settings")] public Mesh herbMesh;
     public Material herbMaterial;
@@ -50,7 +51,7 @@ public class SporeSimulation : MonoBehaviour
     private BrainData mainScav;
     private BrainData flockScav;
     ParallelOptions parallel = new ParallelOptions();
-    SaveSystemUnity   _saveSystem ;
+    SaveSystemUnity _saveSystem;
 
 
     private const int MAX_OBJS_PER_DRAWCALL = 1000;
@@ -91,7 +92,8 @@ public class SporeSimulation : MonoBehaviour
             turnCount
         )
         {
-            filepath = Application.dataPath + filePath
+            filepath = Application.dataPath + filePath,
+            fileType = fileExtension
         };
         // _saveSystem.AddObjectToSave(sporeManager);
     }
