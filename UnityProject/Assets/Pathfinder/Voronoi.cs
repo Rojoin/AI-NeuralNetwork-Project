@@ -159,7 +159,7 @@ public class Voronoi<NodeType, Coordinate> where NodeType : INode<Coordinate>
         List<Segments<Vector2>> polygonA = new(voronoiPolygons[center]);
         List<Segments<Vector2>> polygonB = new(voronoiPolygons[center]);
 
-        var t = 10000;
+        int t = 10000;
         for (int i = 0; i < voronoiPolygons[center].Count; i++)
         {
             Segments<Vector2> segments = voronoiPolygons[center][i];

@@ -66,7 +66,7 @@ public class TankBase : MonoBehaviour
     protected void SetForces(float leftForce, float rightForce, float dt)
     {
         Vector3 pos = this.transform.position;
-        var force = rightForce - leftForce;
+        float force = rightForce - leftForce;
         float rotFactor = Mathf.Clamp(force, -1.0f, 1.0f);
         this.transform.rotation *= Quaternion.AngleAxis(rotFactor * RotSpeed * dt, Vector3.up);
         pos += this.transform.forward * Mathf.Abs(rightForce + leftForce) * 0.5f * Speed * dt;

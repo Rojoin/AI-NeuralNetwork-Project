@@ -1,9 +1,12 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using RojoinNeuralNetwork;
+using RojoinNeuralNetwork.Scripts.Agents;
 using UnityEngine;
 
-public class VoronoiSporeManager : SporeManager
+[Serializable]
+public class VoronoiSporeManager : SporeManagerLib
 {
     private VoronoiDiagram voronoi;
 
@@ -36,9 +39,11 @@ public class VoronoiSporeManager : SporeManager
             if (poly.IsInside(new Vector2(position.X, position.Y)))
             {
                 System.Numerics.Vector2 polyItem = new System.Numerics.Vector2(poly.itemSector.x, poly.itemSector.y);
-                var a = plants.Where(p => p.position.Equals(polyItem));
+                IEnumerable<Plant> a = plants.Where(p => p.position.Equals(polyItem));
 
-                if (a.Count() > 0)
+                int count = 0;
+                foreach (Plant plant in a) count++;
+                if (count > 0)
                 {
                     return a.First();
                 }

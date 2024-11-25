@@ -135,6 +135,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Voronoi
       objectReference: {fileID: 0}
+    - target: {fileID: 335332011468906888, guid: 5fab2c8899e76214abe3461192ef1671, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 5018696705912333701, guid: 5fab2c8899e76214abe3461192ef1671, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0
@@ -294,6 +298,7 @@ GameObject:
   m_Component:
   - component: {fileID: 701248635}
   - component: {fileID: 701248634}
+  - component: {fileID: 701248636}
   m_Layer: 0
   m_Name: GameObject
   m_TagString: Untagged
@@ -313,7 +318,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 02b3a45f374246deb2e2c7501cc6b85a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  fileToLoad: 40.spore
+  fileToLoad: 1Old2.json
   filePath: /Saves/Genomes
   isSimulationActive: 1
   herbMesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
@@ -324,11 +329,11 @@ MonoBehaviour:
   plantMesh: {fileID: 10208, guid: 0000000000000000e000000000000000, type: 0}
   carnMesh: {fileID: 10207, guid: 0000000000000000e000000000000000, type: 0}
   scavMesh: {fileID: 4300000, guid: 002e2a607f5b64c48be0b3b0d8b8bfdd, type: 3}
-  gridSizeX: 10
-  gridSizeY: 10
+  gridSizeX: 100
+  gridSizeY: 100
   herbivoreCount: 50
-  carnivoreCount: 4
-  scavengerCount: 4
+  carnivoreCount: 25
+  scavengerCount: 25
   turnCount: 50
   currentGeneration: 0
   mutationChance: 0.5
@@ -357,6 +362,61 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &701248636
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 701248633}
+  m_Enabled: 0
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3dd2844fce2941a1a1f3e6532fe59237, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  pathToSave: /Saves/Test/GenomesBatch
+  geneticAlgorithmData:
+    totalFitness: 1.64
+    eliteCount: 5
+    mutationChance: 0.2
+    mutationRate: 0.4
+    brainStructure:
+      layers:
+      - neurons: []
+        totalWeights: 0
+        inputsCount: 0
+      - neurons: []
+        totalWeights: 0
+        inputsCount: 0
+      FitnessReward: 0
+      FitnessMultiplier: 0
+      outputs: []
+      bias: 1
+      p: 0.5
+      inputs: []
+    lastGenome:
+    - genome:
+      - 1111
+      - 6969
+      fitness: 0
+    generationStalled: 0
+    generationCount: 189
+  geneticAlgorithmData2:
+    totalFitness: 0
+    eliteCount: 5
+    mutationChance: 0.2
+    mutationRate: 0.4
+    brainStructure:
+      layers: []
+      FitnessReward: 0
+      FitnessMultiplier: 0
+      outputs: []
+      bias: 1
+      p: 0.5
+      inputs: []
+    lastGenome: []
+    generationStalled: 0
+    generationCount: 0
 --- !u!114 &1146561065 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 7063377485027945341, guid: 5fab2c8899e76214abe3461192ef1671, type: 3}

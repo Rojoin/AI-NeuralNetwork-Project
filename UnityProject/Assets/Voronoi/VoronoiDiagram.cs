@@ -5,7 +5,7 @@ using UnityEditor;
 using UnityEngine;
 using Random = UnityEngine.Random;
 
-[ExecuteAlways]
+
 public class VoronoiDiagram : MonoBehaviour
 {
     public bool drawPolis;

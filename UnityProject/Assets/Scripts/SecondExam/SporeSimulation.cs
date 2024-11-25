@@ -30,7 +30,7 @@ public class SporeSimulation : MonoBehaviour
     public float mutationRate = 0.01f;
     public int eliteCount = 4;
 
-    [SerializeField] public VoronoiSporeManager sporeManager;
+    [NonSerialized] public SporeManagerLib sporeManager;
     [SerializeField] public VoronoiDiagram voronoi;
     public float simulationDeltaTime = 0.1f; // Adjust for simulation speed
     private float timer = 0;
@@ -50,12 +50,14 @@ public class SporeSimulation : MonoBehaviour
     private BrainData mainScav;
     private BrainData flockScav;
     ParallelOptions parallel = new ParallelOptions();
+    SaveSystemUnity   _saveSystem ;
 
 
     private const int MAX_OBJS_PER_DRAWCALL = 1000;
 
     void OnEnable()
     {
+        _saveSystem = GetComponent<SaveSystemUnity>();
         mainHerb = new BrainData(11, new int[] { 7, 5, 3 }, 3, herbBias, herbP);
         moveBrain = new BrainData(4, new int[] { 5, 4 }, 4, herbBias, herbP);
         eatBrain = new BrainData(5, new int[] { 3, }, 1, herbBias, herbP);
@@ -77,7 +79,7 @@ public class SporeSimulation : MonoBehaviour
         var scavBrainData = new List<BrainData> { mainScav, flockScav };
 
 
-        sporeManager = new VoronoiSporeManager(voronoi,
+        sporeManager = new SporeManagerLib(
             herbBrainData,
             carnBrainData,
             scavBrainData,
@@ -87,8 +89,11 @@ public class SporeSimulation : MonoBehaviour
             carnivoreCount,
             scavengerCount,
             turnCount
-        );
-        sporeManager.filepath = Application.dataPath + filePath;
+        )
+        {
+            filepath = Application.dataPath + filePath
+        };
+        // _saveSystem.AddObjectToSave(sporeManager);
     }
 
     void Update()
@@ -171,6 +176,12 @@ public class SporeSimulation : MonoBehaviour
         sporeManager.fileToLoad = Application.dataPath + filePath + fileToLoad;
         sporeManager.Load();
     }
+
+    // [ContextMenu("Save")]
+    // private void Save()
+    // {
+    //     sporeManager.Save();
+    // }
 
     private void OnDrawGizmos()
     {
