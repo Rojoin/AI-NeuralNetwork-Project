@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using RojoinNeuralNetwork;
 using UnityEngine;
+using Logger = RojoinNeuralNetwork.Utils.Logger;
 
 public class SporeSimulation : MonoBehaviour
 {
@@ -11,6 +12,9 @@ public class SporeSimulation : MonoBehaviour
     public string filePath = "/Saves/Genomes";
     public string fileExtension = ".spore";
     public bool isSimulationActive = true;
+    public bool showGizmos = true;
+    public bool loadOnActive = true;
+    [SerializeField] private bool logSimulations;
     [Header("Meshes Settings")] public Mesh herbMesh;
     public Material herbMaterial;
     public Material plantMaterial;
@@ -37,17 +41,29 @@ public class SporeSimulation : MonoBehaviour
     private float timer = 0;
     [Header("BrainConfigs")] public float herbBias = 0.5f;
     public float herbP = 0.5f;
+    public float herbMoveBias = 0.5f;
+    public float herbMoveP = 0.5f;
+    public float herbEatBias = 0.5f;
+    public float herbEatP = 0.5f;
+    public float herbEscapeBias = 0.5f;
+    public float herbEscapeP = 0.5f;
     private BrainData mainHerb;
     private BrainData moveBrain;
     private BrainData eatBrain;
     private BrainData escapeBrain;
     public float carnBias = 0.5f;
-    public float carnP = 0.5f;
+    public float carnP = 0.1f;
+    public float carnEatBias = 0.5f;
+    public float carnMoveBias = 0.5f;
+    public float carnEatP = 0.1f;
+    public float carnMoveP = 0.1f;
     private BrainData mainCarn;
     private BrainData moveCarn;
     private BrainData eatCarn;
     public float scavBias = 0.5f;
+    public float scavFlockingBias = 0.5f;
     public float scavP = 0.5f;
+    public float scavFlokingP = 0.5f;
     private BrainData mainScav;
     private BrainData flockScav;
     ParallelOptions parallel = new ParallelOptions();
@@ -59,17 +75,18 @@ public class SporeSimulation : MonoBehaviour
     void OnEnable()
     {
         _saveSystem = GetComponent<SaveSystemUnity>();
+        Logger.LogAction += LogSimulations;
         mainHerb = new BrainData(11, new int[] { 7, 5, 3 }, 3, herbBias, herbP);
-        moveBrain = new BrainData(4, new int[] { 5, 4 }, 4, herbBias, herbP);
-        eatBrain = new BrainData(5, new int[] { 3, }, 1, herbBias, herbP);
-        escapeBrain = new BrainData(8, new int[] { 5, 3 }, 4, herbBias, herbP);
+        moveBrain = new BrainData(4, new int[] { 5, 4 }, 4, herbMoveBias, herbMoveP);
+        eatBrain = new BrainData(5, new int[] { 3, 2, 2 }, 1, herbEatBias, herbEatP);
+        escapeBrain = new BrainData(8, new int[] { 5, 3 }, 4, herbEscapeBias, herbEscapeP);
 
         mainCarn = new BrainData(5, new int[] { 3, 2 }, 2, carnBias, carnP);
-        moveCarn = new BrainData(4, new int[] { 3, 2 }, 2, carnBias, carnP);
-        eatCarn = new BrainData(5, new int[] { 2, 2 }, 1, carnBias, carnP);
+        moveCarn = new BrainData(4, new int[] { 3, 2 }, 2, carnMoveBias, carnMoveP);
+        eatCarn = new BrainData(5, new int[] { 2, 2 }, 1, carnEatBias, carnEatP);
 
-        mainScav = new BrainData(5, new int[] { 3, 5 }, 2, scavBias, scavP);
-        flockScav = new BrainData(8, new int[] { 5, 5, 5 }, 4, scavBias, scavP);
+        mainScav = new BrainData(5, new int[] { 4, 3 }, 2, scavBias, scavP);
+        flockScav = new BrainData(8, new int[] { 7, 6, 5 }, 6, scavFlockingBias, scavFlokingP);
         ;
         parallel.MaxDegreeOfParallelism = 32;
 
@@ -95,7 +112,16 @@ public class SporeSimulation : MonoBehaviour
             filepath = Application.dataPath + filePath,
             fileType = fileExtension
         };
+        if (loadOnActive)
+        {
+            Load();
+        }
         // _saveSystem.AddObjectToSave(sporeManager);
+    }
+
+    private void OnDisable()
+    {
+        Logger.LogAction -= LogSimulations;
     }
 
     void Update()
@@ -103,16 +129,24 @@ public class SporeSimulation : MonoBehaviour
         timer += Time.deltaTime;
 
         // Tick the simulation at a fixed interval
-        // if (timer >= simulationDeltaTime)
-        // {
-        currentGeneration = sporeManager.generation;
-        sporeManager.isActive = isSimulationActive;
-        sporeManager.Tick(Time.deltaTime);
-        timer = 0;
-        // }
+        if (timer >= simulationDeltaTime)
+        {
+            currentGeneration = sporeManager.generation;
+            sporeManager.isActive = isSimulationActive;
+            sporeManager.Tick(simulationDeltaTime);
+            timer = 0;
+        }
 
 
         DrawEntities();
+    }
+
+    private void LogSimulations(string message)
+    {
+        if (logSimulations)
+        {
+            Debug.Log(message);
+        }
     }
 
     private void DrawEntities()
@@ -137,7 +171,7 @@ public class SporeSimulation : MonoBehaviour
                 _ => throw new ArgumentOutOfRangeException(nameof(group.Key))
             };
 
-            var (mesh, material, defaultColor) = group.Value;
+            (Mesh mesh, Material material, Color defaultColor) = group.Value;
 
             List<Matrix4x4[]> drawMatrix = new List<Matrix4x4[]>();
             int meshes = entities.Count();
@@ -152,6 +186,10 @@ public class SporeSimulation : MonoBehaviour
             {
                 material.color = defaultColor;
 
+                if (agent.lives < 0)
+                {
+                    continue;
+                }
 
                 // Calculate the transformation matrix
                 Vector3 position = new Vector3(agent.position.X, agent.position.Y, 0);
@@ -175,7 +213,7 @@ public class SporeSimulation : MonoBehaviour
     [ContextMenu("Load Save")]
     private void Load()
     {
-        sporeManager.fileToLoad = Application.dataPath + filePath + fileToLoad;
+        sporeManager.fileToLoad = $"{Application.dataPath}{filePath}{fileToLoad}{fileExtension}";
         sporeManager.Load();
     }
 
@@ -185,15 +223,15 @@ public class SporeSimulation : MonoBehaviour
     //     sporeManager.Save();
     // }
 
-    private void OnDrawGizmos()
+    private void OnDrawGizmosSelected()
     {
-        if (sporeManager == null) return;
+        if (sporeManager == null || !showGizmos) return;
 
-        // // Example: Draw grid or visualize entities
-        // Gizmos.color = Color.gray;
-        // for (int x = 0; x <= gridSizeX; x++)
-        //     Gizmos.DrawLine(new Vector3(x, 0, 0), new Vector3(x, gridSizeY, 0));
-        // for (int y = 0; y <= gridSizeY; y++)
-        //     Gizmos.DrawLine(new Vector3(0, y, 0), new Vector3(gridSizeX, y, 0));
+
+        Gizmos.color = Color.gray;
+        for (int x = 0; x <= gridSizeX; x++)
+            Gizmos.DrawLine(new Vector3(x, 0, 0), new Vector3(x, gridSizeY, 0));
+        for (int y = 0; y <= gridSizeY; y++)
+            Gizmos.DrawLine(new Vector3(0, y, 0), new Vector3(gridSizeX, y, 0));
     }
 }

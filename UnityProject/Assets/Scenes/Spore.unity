@@ -318,9 +318,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 02b3a45f374246deb2e2c7501cc6b85a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  fileToLoad: 1Old2.json
+  fileToLoad: 162.
   filePath: /Saves/Genomes
+  fileExtension: .spore
   isSimulationActive: 1
+  showGizmos: 0
+  loadOnActive: 1
+  logSimulations: 1
   herbMesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
   herbMaterial: {fileID: 2100000, guid: 65b34bd0b696fd64c809daa8ff1aac63, type: 2}
   plantMaterial: {fileID: 2100000, guid: 03ad6a4c3c0e64440b1d6cee74fc2a4f, type: 2}
@@ -329,24 +333,36 @@ MonoBehaviour:
   plantMesh: {fileID: 10208, guid: 0000000000000000e000000000000000, type: 0}
   carnMesh: {fileID: 10207, guid: 0000000000000000e000000000000000, type: 0}
   scavMesh: {fileID: 4300000, guid: 002e2a607f5b64c48be0b3b0d8b8bfdd, type: 3}
-  gridSizeX: 100
-  gridSizeY: 100
+  gridSizeX: 25
+  gridSizeY: 25
   herbivoreCount: 50
-  carnivoreCount: 25
-  scavengerCount: 25
-  turnCount: 50
+  carnivoreCount: 50
+  scavengerCount: 50
+  turnCount: 10
   currentGeneration: 0
   mutationChance: 0.5
   mutationRate: 0.43
   eliteCount: 4
   voronoi: {fileID: 1146561065}
-  simulationDeltaTime: 0.1
-  herbBias: 0.34
-  herbP: 0.17
+  simulationDeltaTime: 0.27
+  herbBias: 1
+  herbP: 0.1
+  herbMoveBias: 0.5
+  herbMoveP: 0.5
+  herbEatBias: 0.5
+  herbEatP: 0.5
+  herbEscapeBias: 0.5
+  herbEscapeP: 0.5
   carnBias: 0.5
-  carnP: 0.17
+  carnP: 0.42
+  carnEatBias: 0.5
+  carnMoveBias: 0.5
+  carnEatP: 0.1
+  carnMoveP: 0.1
   scavBias: 0.5
-  scavP: 0.28
+  scavFlockingBias: 0.5
+  scavP: 1
+  scavFlokingP: 0.5
 --- !u!4 &701248635
 Transform:
   m_ObjectHideFlags: 0
