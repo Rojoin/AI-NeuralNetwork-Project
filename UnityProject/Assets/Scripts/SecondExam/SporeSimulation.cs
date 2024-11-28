@@ -81,7 +81,7 @@ public class SporeSimulation : MonoBehaviour
         eatBrain = new BrainData(5, new int[] { 3, 2, 2 }, 1, herbEatBias, herbEatP);
         escapeBrain = new BrainData(8, new int[] { 5, 3 }, 4, herbEscapeBias, herbEscapeP);
 
-        mainCarn = new BrainData(5, new int[] { 3, 2 }, 2, carnBias, carnP);
+        mainCarn = new BrainData(5, new int[] { 3, 2 }, 1, carnBias, carnP);
         moveCarn = new BrainData(4, new int[] { 3, 2 }, 2, carnMoveBias, carnMoveP);
         eatCarn = new BrainData(5, new int[] { 2, 2 }, 1, carnEatBias, carnEatP);
 
@@ -151,63 +151,67 @@ public class SporeSimulation : MonoBehaviour
 
     private void DrawEntities()
     {
-        var entityGroups = new Dictionary<string, (Mesh mesh, Material material, Color color)>
-        {
-            { "herbis", (herbMesh, herbMaterial, Color.yellow) },
-            { "carnivores", (carnMesh, carnMaterial, Color.red) },
-            { "plants", (plantMesh, plantMaterial, Color.green) },
-            { "scavengers", (scavMesh, scavMaterial, Color.black) }
-        };
-
-        foreach (var group in entityGroups)
-        {
-            List<SporeAgent> entities = group.Key switch
-            {
-                "herbis" => new List<SporeAgent>(sporeManager.herbis),
-                "carnivores" => new List<SporeAgent>(sporeManager.carnivores),
-                "plants" => new List<SporeAgent>(sporeManager.plants) // Filter unavailable plants
-                ,
-                "scavengers" => new List<SporeAgent>(sporeManager.scavengers),
-                _ => throw new ArgumentOutOfRangeException(nameof(group.Key))
-            };
-
-            (Mesh mesh, Material material, Color defaultColor) = group.Value;
-
-            List<Matrix4x4[]> drawMatrix = new List<Matrix4x4[]>();
-            int meshes = entities.Count();
-
-            for (int i = 0; i < meshes; i += MAX_OBJS_PER_DRAWCALL)
-            {
-                drawMatrix.Add(new Matrix4x4[Math.Min(MAX_OBJS_PER_DRAWCALL, meshes - i)]);
-            }
-
-            int index = 0;
-            foreach (var agent in entities)
-            {
-                material.color = defaultColor;
-
-                if (agent.lives < 0)
-                {
-                    continue;
-                }
-
-                // Calculate the transformation matrix
-                Vector3 position = new Vector3(agent.position.X, agent.position.Y, 0);
-                drawMatrix[index / MAX_OBJS_PER_DRAWCALL][index % MAX_OBJS_PER_DRAWCALL]
-                    = Matrix4x4.TRS(position, Quaternion.identity, Vector3.one);
-
-                index++;
-            }
-
-
-            for (int i = 0; i < drawMatrix.Count; i++)
-            {
-                for (int j = 0; j < mesh.subMeshCount; j++)
-                {
-                    Graphics.DrawMeshInstanced(mesh, j, material, drawMatrix[i]);
-                }
-            }
-        }
+        DrawEntities(sporeManager.herbis, herbMesh, herbMaterial, Color.yellow);
+        DrawEntities(sporeManager.carnivores, carnMesh, carnMaterial, Color.red);
+        DrawEntities(sporeManager.plants, plantMesh, plantMaterial, Color.green);
+        DrawEntities(sporeManager.scavengers, scavMesh, scavMaterial, Color.black);
+        // var entityGroups = new Dictionary<string, (Mesh mesh, Material material, Color color)>
+        // {
+        //     { "herbis", (herbMesh, herbMaterial, Color.yellow) },
+        //     { "carnivores", (carnMesh, carnMaterial, Color.red) },
+        //     { "plants", (plantMesh, plantMaterial, Color.green) },
+        //     { "scavengers", (scavMesh, scavMaterial, Color.black) }
+        // };
+        //
+        // foreach (var group in entityGroups)
+        // {
+        //     List<SporeAgent> entities = group.Key switch
+        //     {
+        //         "herbis" => new List<SporeAgent>(sporeManager.herbis),
+        //         "carnivores" => new List<SporeAgent>(sporeManager.carnivores),
+        //         "plants" => new List<SporeAgent>(sporeManager.plants) // Filter unavailable plants
+        //         ,
+        //         "scavengers" => new List<SporeAgent>(sporeManager.scavengers),
+        //         _ => throw new ArgumentOutOfRangeException(nameof(group.Key))
+        //     };
+        //
+        //     (Mesh mesh, Material material, Color defaultColor) = group.Value;
+        //
+        //     List<Matrix4x4[]> drawMatrix = new List<Matrix4x4[]>();
+        //     int meshes = entities.Count();
+        //
+        //     for (int i = 0; i < meshes; i += MAX_OBJS_PER_DRAWCALL)
+        //     {
+        //         drawMatrix.Add(new Matrix4x4[Math.Min(MAX_OBJS_PER_DRAWCALL, meshes - i)]);
+        //     }
+        //
+        //     int index = 0;
+        //     foreach (var agent in entities)
+        //     {
+        //         material.color = defaultColor;
+        //
+        //         if (agent.lives < 0)
+        //         {
+        //             continue;
+        //         }
+        //
+        //         // Calculate the transformation matrix
+        //         Vector3 position = new Vector3(agent.position.X, agent.position.Y, 0);
+        //         drawMatrix[index / MAX_OBJS_PER_DRAWCALL][index % MAX_OBJS_PER_DRAWCALL]
+        //             = Matrix4x4.TRS(position, Quaternion.identity, Vector3.one);
+        //
+        //         index++;
+        //     }
+        //
+        //
+        //     for (int i = 0; i < drawMatrix.Count; i++)
+        //     {
+        //         for (int j = 0; j < mesh.subMeshCount; j++)
+        //         {
+        //             Graphics.DrawMeshInstanced(mesh, j, material, drawMatrix[i]);
+        //         }
+        //     }
+        // }
     }
 
     [ContextMenu("Load Save")]
@@ -215,6 +219,39 @@ public class SporeSimulation : MonoBehaviour
     {
         sporeManager.fileToLoad = $"{Application.dataPath}{filePath}{fileToLoad}{fileExtension}";
         sporeManager.Load();
+    }
+
+    void DrawEntities(IEnumerable<SporeAgent> entities, Mesh mesh, Material material, Color color)
+    {
+        var validEntities = entities.Where(agent => agent.lives >= 0).ToList();
+        int entityCount = validEntities.Count;
+
+        int drawCallCount = Mathf.CeilToInt((float)entityCount / MAX_OBJS_PER_DRAWCALL);
+        var drawMatrices = new List<Matrix4x4[]>(drawCallCount);
+
+        for (int i = 0; i < drawCallCount; i++)
+        {
+            int batchSize = Math.Min(MAX_OBJS_PER_DRAWCALL, entityCount - i * MAX_OBJS_PER_DRAWCALL);
+            drawMatrices.Add(new Matrix4x4[batchSize]);
+        }
+
+        int index = 0;
+        foreach (var agent in validEntities)
+        {
+            Vector3 position = new Vector3(agent.position.X, agent.position.Y, 0);
+            drawMatrices[index / MAX_OBJS_PER_DRAWCALL][index % MAX_OBJS_PER_DRAWCALL] =
+                Matrix4x4.TRS(position, Quaternion.identity, Vector3.one);
+            index++;
+        }
+
+        material.color = color;
+        foreach (var matrices in drawMatrices)
+        {
+            for (int subMeshIndex = 0; subMeshIndex < mesh.subMeshCount; subMeshIndex++)
+            {
+                Graphics.DrawMeshInstanced(mesh, subMeshIndex, material, matrices);
+            }
+        }
     }
 
     // [ContextMenu("Save")]
