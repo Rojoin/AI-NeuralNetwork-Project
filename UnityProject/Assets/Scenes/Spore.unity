@@ -318,7 +318,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 02b3a45f374246deb2e2c7501cc6b85a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  fileToLoad: 162.
+  fileToLoad: 2
   filePath: /Saves/Genomes
   fileExtension: .spore
   isSimulationActive: 1
@@ -336,15 +336,15 @@ MonoBehaviour:
   gridSizeX: 25
   gridSizeY: 25
   herbivoreCount: 50
-  carnivoreCount: 50
-  scavengerCount: 50
-  turnCount: 10
+  carnivoreCount: 25
+  scavengerCount: 10
+  turnCount: 100
   currentGeneration: 0
   mutationChance: 0.5
   mutationRate: 0.43
   eliteCount: 4
   voronoi: {fileID: 1146561065}
-  simulationDeltaTime: 0.27
+  simulationDeltaTime: 0.01666667
   herbBias: 1
   herbP: 0.1
   herbMoveBias: 0.5
@@ -356,7 +356,7 @@ MonoBehaviour:
   carnBias: 0.5
   carnP: 0.42
   carnEatBias: 0.5
-  carnMoveBias: 0.5
+  carnMoveBias: -1
   carnEatP: 0.1
   carnMoveP: 0.1
   scavBias: 0.5
