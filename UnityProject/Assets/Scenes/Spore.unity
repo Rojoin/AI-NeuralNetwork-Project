@@ -319,11 +319,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   fileToLoad: 2
-  filePath: /Saves/Genomes
+  filePath: /Saves/GenomesSecondGeneration
   fileExtension: .spore
   isSimulationActive: 1
   showGizmos: 0
-  loadOnActive: 1
+  loadOnActive: 0
   logSimulations: 1
   herbMesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
   herbMaterial: {fileID: 2100000, guid: 65b34bd0b696fd64c809daa8ff1aac63, type: 2}
