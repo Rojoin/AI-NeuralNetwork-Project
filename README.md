@@ -4,6 +4,8 @@ Experimental **neural network simulation project** built with **ECS**, **GPU ins
 
 The project uses **neural networks combined with genetic algorithms** to train agents to develop specific behaviors through **trial and error**.
 
+This project started as a **2024 Image Campus project** and later evolved into an independent experiment.
+
 ---
 
 ## Project Overview
